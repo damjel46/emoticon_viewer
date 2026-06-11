@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore'
 import { usePlatformStore } from '../../store/platformStore'
 import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
+import { InfoModal } from './InfoModal'
 import { PlatformLogo } from './PlatformLogo'
 
 const NAV_ITEMS = [
@@ -24,6 +25,7 @@ export function Sidebar({ collapsed, onToggle }: Props) {
   const profile = useAuthStore((s) => s.profile)
   const signOut = useAuthStore((s) => s.signOut)
   const [showLogin, setShowLogin] = useState(false)
+  const [showComingSoon, setShowComingSoon] = useState(false)
 
   const activePlatform = usePlatformStore((s) => s.activePlatform)
   const setPlatform = usePlatformStore((s) => s.setPlatform)
@@ -146,10 +148,11 @@ export function Sidebar({ collapsed, onToggle }: Props) {
               )}
             </div>
           ) : (
-            <div
+            <button
+              onClick={() => setShowComingSoon(true)}
               title="로그인 (준비중)"
               className={clsx(
-                'flex items-center rounded-xl text-sm font-medium text-white/30 cursor-not-allowed',
+                'flex items-center rounded-xl text-sm font-medium text-white/50 hover:text-white/70 hover:bg-white/10 transition-colors',
                 collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5 w-full'
               )}
             >
@@ -160,7 +163,7 @@ export function Sidebar({ collapsed, onToggle }: Props) {
                   <span className="text-[9px] bg-white/10 px-1.5 py-0.5 rounded-full">준비중</span>
                 </span>
               )}
-            </div>
+            </button>
           )}
         </div>
 
@@ -178,6 +181,45 @@ export function Sidebar({ collapsed, onToggle }: Props) {
       </aside>
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+
+      {showComingSoon && (
+        <InfoModal title="🚀 곧 오픈됩니다!" onClose={() => setShowComingSoon(false)}>
+          <p className="text-sm text-gray-500 mb-4">
+            로그인 및 결제 서비스를 준비 중입니다.<br />
+            오픈 후 아래 혜택을 모두 이용하실 수 있습니다.
+          </p>
+          <ul className="space-y-3">
+            <li className="flex items-start gap-3">
+              <span className="text-xl leading-none">☁️</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">이모티콘 클라우드 저장</p>
+                <p className="text-xs text-gray-500">업로드한 이모티콘이 계정에 자동 저장됩니다.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-xl leading-none">📱</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">QR 모바일 미리보기</p>
+                <p className="text-xs text-gray-500">QR 코드로 실제 스마트폰에서 바로 확인할 수 있습니다.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-xl leading-none">🚫</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">광고 제거</p>
+                <p className="text-xs text-gray-500">광고 없는 깔끔한 환경에서 작업하세요.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-xl leading-none">🤏</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">카카오 미니 이모티콘 모드</p>
+                <p className="text-xs text-gray-500">미니 사이즈 이모티콘 레이아웃을 시뮬레이션합니다.</p>
+              </div>
+            </li>
+          </ul>
+        </InfoModal>
+      )}
     </>
   )
 }
