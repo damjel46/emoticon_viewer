@@ -34,11 +34,9 @@ export const useThemeStore = create<ThemeState>()(
         })),
 
       resetForPlatform: (themes, defaultTheme) => {
-        const { activeTheme } = get()
-        const stillValid = themes.some((t) => t.key === activeTheme)
         set({
           platformThemes: themes,
-          activeTheme: stillValid ? activeTheme : defaultTheme,
+          activeTheme: defaultTheme,
         })
       },
 
