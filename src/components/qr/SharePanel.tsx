@@ -16,7 +16,7 @@ export function SharePanel({ onUrlChange }: Props) {
 
   const generateUrl = () => {
     const url = buildShareUrl({
-      emoticonIds: emoticons.map((e) => e.id),
+      emoticons: emoticons.map((e) => ({ id: e.id, name: e.name, dataUrl: e.dataUrl, mimeType: e.mimeType })),
       themeKey: activeTheme,
       customBg: customBgColor,
     })

@@ -46,8 +46,15 @@ export interface AnimPlayerState {
   activeEmoticonId: string | null;
 }
 
+export interface ShareEmoticon {
+  id: string;
+  name: string;
+  dataUrl: string;
+  mimeType: string;
+}
+
 export interface SharePayload {
-  emoticonIds: string[];
+  emoticons: ShareEmoticon[];
   themeKey: ThemeKey;
   customBg?: string;
 }

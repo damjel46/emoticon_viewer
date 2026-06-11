@@ -11,34 +11,11 @@ export function MobilePreviewPage() {
     const payload = hash ? parseShareUrl(hash) : null
 
     if (!payload) {
-      // No payload — show all persisted emoticons
-      try {
-        const raw = localStorage.getItem('kakao-emoticons')
-        if (raw) {
-          const parsed = JSON.parse(raw) as { state: { emoticons: EmoticonFile[] } }
-          setEmoticons(parsed.state?.emoticons ?? [])
-        }
-      } catch {
-        setEmoticons([])
-      }
       setLoaded(true)
       return
     }
 
-    // With payload — filter by shared IDs
-    try {
-      const raw = localStorage.getItem('kakao-emoticons')
-      if (raw) {
-        const parsed = JSON.parse(raw) as { state: { emoticons: EmoticonFile[] } }
-        const all = parsed.state?.emoticons ?? []
-        const filtered = payload.emoticonIds.length > 0
-          ? all.filter((e) => payload.emoticonIds.includes(e.id))
-          : all
-        setEmoticons(filtered)
-      }
-    } catch {
-      setEmoticons([])
-    }
+    setEmoticons(payload.emoticons as EmoticonFile[])
     setLoaded(true)
   }, [])
 
