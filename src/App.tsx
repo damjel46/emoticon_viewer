@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Routes, Route, Outlet } from 'react-router-dom'
 import { Sidebar } from './components/shared/Sidebar'
 import { SimulatorPage } from './pages/SimulatorPage'
@@ -7,9 +8,11 @@ import { QRPage } from './pages/QRPage'
 import { MobilePreviewPage } from './pages/MobilePreviewPage'
 
 function AppShell() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
   return (
     <div className="flex h-screen overflow-hidden font-kakao">
-      <Sidebar />
+      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
       <main className="flex-1 overflow-hidden flex flex-col bg-white">
         <Outlet />
       </main>
