@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { QRGenerator } from '../components/qr/QRGenerator'
 import { SharePanel } from '../components/qr/SharePanel'
 import { PhoneFrame } from '../components/qr/PhoneFrame'
-import { PremiumGate } from '../components/auth/PremiumGate'
 
 export function QRPage() {
   const [shareUrl, setShareUrl] = useState('')
@@ -14,7 +13,6 @@ export function QRPage() {
         <p className="text-xs text-gray-400 mt-0.5">QR 코드를 스캔해 스마트폰에서 이모티콘을 확인하세요</p>
       </div>
 
-      <PremiumGate feature="QR 연동">
       <div className="flex gap-8 px-6 py-6 flex-1 flex-wrap">
         {/* 좌측: 설정 + QR */}
         <div className="flex flex-col gap-6 w-72">
@@ -46,7 +44,13 @@ export function QRPage() {
           )}
         </div>
       </div>
-      </PremiumGate>
+
+      {/* 하단 안내 */}
+      <div className="px-6 py-3 border-t border-gray-100 flex-shrink-0">
+        <p className="text-[11px] text-gray-400 text-center">
+          🔒 QR 연동 기능은 추후 로그인 및 결제 전용으로 전환될 예정입니다
+        </p>
+      </div>
     </div>
   )
 }

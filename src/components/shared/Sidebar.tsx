@@ -91,17 +91,21 @@ export function Sidebar({ collapsed, onToggle }: Props) {
               )}
             </div>
           ) : (
-            <button
-              onClick={() => setShowLogin(true)}
-              title="로그인"
+            <div
+              title="로그인 (준비중)"
               className={clsx(
-                'flex items-center rounded-xl text-sm font-medium transition-colors text-white/70 hover:bg-white/10 hover:text-white',
+                'flex items-center rounded-xl text-sm font-medium text-white/30 cursor-not-allowed',
                 collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5 w-full'
               )}
             >
               <span className="text-base">👤</span>
-              {!collapsed && <span>로그인</span>}
-            </button>
+              {!collapsed && (
+                <span className="flex items-center gap-1.5">
+                  로그인
+                  <span className="text-[9px] bg-white/10 px-1.5 py-0.5 rounded-full">준비중</span>
+                </span>
+              )}
+            </div>
           )}
         </div>
 
