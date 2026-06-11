@@ -134,7 +134,7 @@ export function MobilePreviewPage() {
                 )}
                 {emoticon ? (
                   <div className={`flex items-end gap-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <img src={emoticon.dataUrl} alt={emoticon.name} className="w-20 h-20 object-contain" />
+                    <img src={emoticon.dataUrl} alt={emoticon.name} className="w-32 h-32 object-contain" />
                     <span className="text-[10px] pb-1 flex-shrink-0" style={{ color: theme.timestampColor }}>
                       {formatTime(msg.timestamp)}
                     </span>
