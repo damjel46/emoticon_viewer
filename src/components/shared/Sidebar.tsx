@@ -3,7 +3,7 @@ import clsx from 'clsx'
 
 const NAV_ITEMS = [
   { to: '/', label: '시뮬레이터', icon: '💬' },
-  { to: '/grid', label: '그리드 콜라주', icon: '🗂️' },
+  { to: '/grid', label: '업로드', icon: '📂' },
   { to: '/anim', label: '애니메이션', icon: '🎬' },
   { to: '/qr', label: 'QR 연동', icon: '📱' },
 ]
