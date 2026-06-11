@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { parseShareUrl } from '../utils/shareUrl'
+import { fetchShare } from '../utils/uploadShare'
 import type { EmoticonFile } from '../types'
 
 export function MobilePreviewPage() {
@@ -7,16 +7,13 @@ export function MobilePreviewPage() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    const hash = window.location.hash
-    const payload = hash ? parseShareUrl(hash) : null
+    const id = window.location.hash.replace(/^#/, '')
+    if (!id) { setLoaded(true); return }
 
-    if (!payload) {
+    fetchShare(id).then((payload) => {
+      if (payload) setEmoticons(payload.emoticons as EmoticonFile[])
       setLoaded(true)
-      return
-    }
-
-    setEmoticons(payload.emoticons as EmoticonFile[])
-    setLoaded(true)
+    })
   }, [])
 
   if (!loaded) {
@@ -41,13 +38,11 @@ export function MobilePreviewPage() {
 
   return (
     <div className="min-h-screen bg-[#b2c7d9]">
-      {/* 상단 헤더 */}
       <div className="bg-[#b2c7d9] px-4 py-3 flex items-center gap-2 sticky top-0 z-10">
         <div className="text-sm font-semibold text-gray-800">이모티콘 미리보기</div>
         <div className="ml-auto text-xs text-gray-500">{emoticons.length}종</div>
       </div>
 
-      {/* 이모티콘 그리드 */}
       <div className="px-4 pb-8">
         <div className="grid grid-cols-3 gap-3">
           {emoticons.map((e) => (
@@ -65,7 +60,6 @@ export function MobilePreviewPage() {
         </div>
       </div>
 
-      {/* 하단 바 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-center">
         <p className="text-[10px] text-gray-400">카카오 이모티콘 워크스페이스 · 모바일 미리보기</p>
       </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useEmoticonStore } from '../../store/emoticonStore'
 import { useThemeStore } from '../../store/themeStore'
-import { buildShareUrl } from '../../utils/shareUrl'
+import { uploadShare } from '../../utils/uploadShare'
 import clsx from 'clsx'
 
 interface Props {
@@ -10,28 +10,38 @@ interface Props {
 
 export function SharePanel({ onUrlChange }: Props) {
   const [copied, setCopied] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const emoticons = useEmoticonStore((s) => s.emoticons)
   const activeTheme = useThemeStore((s) => s.activeTheme)
   const customBgColor = useThemeStore((s) => s.customBgColor)
 
-  const generateUrl = () => {
-    const url = buildShareUrl({
-      emoticons: emoticons.map((e) => ({ id: e.id, name: e.name, dataUrl: e.dataUrl, mimeType: e.mimeType })),
-      themeKey: activeTheme,
-      customBg: customBgColor,
-    })
-    onUrlChange(url)
-    return url
+  const generate = async () => {
+    setUploading(true)
+    setError(null)
+    try {
+      const url = await uploadShare({
+        emoticons: emoticons.map((e) => ({ id: e.id, name: e.name, dataUrl: e.dataUrl, mimeType: e.mimeType })),
+        themeKey: activeTheme,
+        customBg: customBgColor,
+      })
+      onUrlChange(url)
+      return url
+    } catch (e) {
+      setError('업로드 실패. 잠시 후 다시 시도해주세요.')
+      return null
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleCopy = async () => {
-    const url = generateUrl()
+    const url = await generate()
+    if (!url) return
     await navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-
-  const isLargeSet = emoticons.length >= 16
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,28 +49,28 @@ export function SharePanel({ onUrlChange }: Props) {
         <p className="font-semibold mb-1">📱 모바일 QR 연동 방법</p>
         <ol className="list-decimal list-inside space-y-1 text-xs">
           <li>아래 버튼으로 QR 코드를 생성합니다</li>
-          <li>같은 브라우저를 사용하는 기기에서 QR을 스캔합니다</li>
+          <li>스마트폰 카메라로 QR을 스캔합니다</li>
           <li>모바일 화면으로 이모티콘을 확인할 수 있습니다</li>
         </ol>
       </div>
 
-      {isLargeSet && (
-        <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-amber-700">
-          ⚠ 이모티콘이 {emoticons.length}종입니다. 32종 전체 공유 시 QR코드가 복잡해질 수 있습니다.
+      {error && (
+        <div className="bg-red-50 border border-red-100 rounded-xl px-3 py-2 text-xs text-red-600">
+          {error}
         </div>
       )}
 
       <div className="flex flex-col gap-2">
         <button
-          onClick={generateUrl}
-          disabled={emoticons.length === 0}
+          onClick={generate}
+          disabled={emoticons.length === 0 || uploading}
           className="w-full bg-[#3c1e1e] hover:bg-[#5c3333] disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors"
         >
-          QR 코드 생성 ({emoticons.length}종)
+          {uploading ? '업로드 중...' : `QR 코드 생성 (${emoticons.length}종)`}
         </button>
         <button
           onClick={handleCopy}
-          disabled={emoticons.length === 0}
+          disabled={emoticons.length === 0 || uploading}
           className={clsx(
             'w-full font-semibold py-3 rounded-xl transition-colors',
             copied
