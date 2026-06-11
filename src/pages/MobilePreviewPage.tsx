@@ -73,7 +73,7 @@ export function MobilePreviewPage() {
       {/* 이모티콘 그리드 */}
       <div className="px-4 pb-8">
         <div className="grid grid-cols-3 gap-3">
-          {emoticons.map((e, i) => (
+          {emoticons.map((e) => (
             <div
               key={e.id}
               className="aspect-square bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-sm"
