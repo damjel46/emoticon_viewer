@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Outlet } from 'react-router-dom'
 import { Sidebar } from './components/shared/Sidebar'
+import { useAuthStore } from './store/authStore'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { GridPage } from './pages/GridPage'
 import { AnimationPage } from './pages/AnimationPage'
@@ -9,6 +10,8 @@ import { MobilePreviewPage } from './pages/MobilePreviewPage'
 
 function AppShell() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const init = useAuthStore((s) => s.init)
+  useEffect(() => { init() }, [init])
 
   return (
     <div className="flex h-screen overflow-hidden font-kakao">
