@@ -24,6 +24,7 @@ export interface ChatMessage {
   text?: string;
   emoticonId?: string;
   emoticonIds?: string[];
+  isMini?: boolean;
   timestamp: Date;
 }
 

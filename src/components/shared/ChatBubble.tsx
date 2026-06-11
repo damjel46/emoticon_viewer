@@ -24,18 +24,62 @@ function bubbleTextColor(bgHex: string, darkFallback: string): string {
 export function ChatBubble({ message, theme, chatUI }: Props) {
   const emoticons = useEmoticonStore((s) => s.emoticons)
   const isMe = message.sender === '나'
+  const myBubble = chatUI.myBubbleColor ?? '#fee500'
+  const otherBubble = chatUI.otherBubbleColor ?? '#ffffff'
+  const miniPx = chatUI.miniEmoticonDisplayPx ?? 68
+
+  // 미니 이모티콘: 여러 개 가로 행
+  if (message.isMini && message.emoticonIds && message.emoticonIds.length > 0) {
+    const miniEmotes = message.emoticonIds
+      .map((id) => emoticons.find((e) => e.id === id))
+      .filter(Boolean) as typeof emoticons
+
+    return (
+      <div className={clsx('flex items-end gap-1 mb-2', isMe ? 'flex-row-reverse' : 'flex-row')}>
+        {!isMe && chatUI.showAvatar && (
+          <div className="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-600 self-start mt-4">
+            {chatUI.otherLabel.charAt(0)}
+          </div>
+        )}
+        <div className={clsx('flex flex-col gap-0.5', isMe ? 'items-end' : 'items-start')}>
+          {!isMe && chatUI.showSenderName && (
+            <span className="text-xs font-semibold mb-0.5" style={{ color: theme.textColor }}>
+              {chatUI.otherLabel}
+            </span>
+          )}
+          <div className={clsx('flex items-end gap-1', isMe ? 'flex-row-reverse' : 'flex-row')}>
+            <div className="flex gap-0.5">
+              {miniEmotes.map((e, i) => (
+                <img
+                  key={i}
+                  src={e.dataUrl}
+                  alt={e.name}
+                  style={{ width: miniPx, height: miniPx, objectFit: 'contain' }}
+                  className="drop-shadow-sm"
+                />
+              ))}
+            </div>
+            <div className={clsx('flex flex-col text-[10px] pb-1', isMe ? 'items-end' : 'items-start')}>
+              {isMe && chatUI.showReadReceipt && (
+                <span style={{ color: theme.timestampColor }}>읽음</span>
+              )}
+              <span style={{ color: theme.timestampColor }}>{formatTime(message.timestamp)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 일반 이모티콘 (단일)
   const emoticon = message.emoticonId
     ? emoticons.find((e) => e.id === message.emoticonId)
     : null
-
   const isEmoticonOnly = message.type === 'emoticon'
   const emoticonPx = chatUI.emoticonDisplayPx
-  const myBubble = chatUI.myBubbleColor ?? '#fee500'
-  const otherBubble = chatUI.otherBubbleColor ?? '#ffffff'
 
   return (
     <div className={clsx('flex items-end gap-1 mb-2', isMe ? 'flex-row-reverse' : 'flex-row')}>
-      {/* Avatar — 상대방만 표시 */}
       {!isMe && chatUI.showAvatar && (
         <div className="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-600 self-start mt-4">
           {chatUI.otherLabel.charAt(0)}
@@ -49,7 +93,6 @@ export function ChatBubble({ message, theme, chatUI }: Props) {
           </span>
         )}
 
-        {/* 이모티콘 단독 — 말풍선 없이 이미지만 */}
         {isEmoticonOnly && emoticon ? (
           <div className={clsx('flex items-end gap-1', isMe ? 'flex-row-reverse' : 'flex-row')}>
             <img
@@ -66,7 +109,6 @@ export function ChatBubble({ message, theme, chatUI }: Props) {
             </div>
           </div>
         ) : (
-          /* 텍스트 / 혼합 — 말풍선으로 표시 */
           <div className={clsx('flex items-end gap-1', isMe ? 'flex-row-reverse' : 'flex-row')}>
             <div
               className={clsx(

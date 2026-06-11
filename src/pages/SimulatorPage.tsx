@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useEmoticonStore } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
+import { useChatStore } from '../store/chatStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
@@ -13,11 +14,17 @@ export function SimulatorPage() {
   const count = useEmoticonStore((s) => s.emoticons.length)
   const [panelOpen, setPanelOpen] = useState(false)
   const platformConfig = usePlatformStore((s) => s.getConfig())
-  const acceptAttr = platformConfig.spec.allowedTypes.join(',')
+  const miniEmoticonMode = useChatStore((s) => s.miniEmoticonMode)
+  const activeSpec = miniEmoticonMode && platformConfig.miniSpec
+    ? platformConfig.miniSpec
+    : platformConfig.spec
+  const acceptAttr = activeSpec.allowedTypes.join(',')
 
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
-    const spec = usePlatformStore.getState().getConfig().spec
+    const config = usePlatformStore.getState().getConfig()
+    const miniMode = useChatStore.getState().miniEmoticonMode
+    const spec = miniMode && config.miniSpec ? config.miniSpec : config.spec
     const converted = await Promise.all(files.map((f) => fileToEmoticon(f, spec)))
     addEmoticons(converted)
     e.target.value = ''

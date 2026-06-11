@@ -29,6 +29,7 @@ export interface ChatUIStyle {
   bubbleTextColor: string
   timestampColor: string
   emoticonDisplayPx: number
+  miniEmoticonDisplayPx?: number
   accentColor: string
   showReadReceipt: boolean
   showAvatar: boolean
@@ -55,6 +56,7 @@ export interface PlatformConfig {
   icon: string
   accentColor: string
   spec: PlatformSpec
+  miniSpec?: PlatformSpec
   chatUI: ChatUIStyle
   grid: GridConfig
   themes: ChatTheme[]
@@ -87,6 +89,7 @@ export const PLATFORMS: Record<PlatformId, PlatformConfig> = {
       bubbleTextColor: '#1a1a1a',
       timestampColor: '#6b7280',
       emoticonDisplayPx: 112,
+      miniEmoticonDisplayPx: 68,
       accentColor: '#fee500',
       showReadReceipt: true,
       showAvatar: true,
@@ -110,6 +113,16 @@ export const PLATFORMS: Record<PlatformId, PlatformConfig> = {
       { key: 'custom', labelKo: '커스텀', bgColor: '#e8e8e8', myBubbleColor: '#fee500', otherBubbleColor: '#ffffff', textColor: '#1a1a1a', timestampColor: '#6b7280' },
     ],
     defaultTheme: 'light',
+    miniSpec: {
+      expectedWidth: null,
+      expectedHeight: null,
+      minDimension: 60,
+      maxDimension: 360,
+      maxFileSizeBytes: 500_000,
+      allowedTypes: ['image/png', 'image/gif', 'image/webp'],
+      setCountOptions: [],
+      staticOnly: false,
+    },
   },
 
   soop: {

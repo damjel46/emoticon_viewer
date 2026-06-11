@@ -7,11 +7,16 @@ import { PlatformChatHeader } from './PlatformChatHeader'
 import { LiveChatView } from './LiveChatView'
 
 export function ChatSimulator() {
-  const messages = useChatStore((s) => s.messages)
+  const allMessages = useChatStore((s) => s.messages)
   const clearMessages = useChatStore((s) => s.clearMessages)
   const theme = useThemeStore((s) => s.getCurrentTheme())
   const platformId = usePlatformStore((s) => s.activePlatform)
   const chatUI = usePlatformStore((s) => s.getConfig().chatUI)
+
+  // bubbles 모드(카카오)에서 타 플랫폼 multi-emote 메시지 필터링
+  const messages = chatUI.bubbleMode === 'bubbles'
+    ? allMessages.filter((m) => !m.emoticonIds || m.emoticonIds.length <= 1 || m.isMini)
+    : allMessages
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

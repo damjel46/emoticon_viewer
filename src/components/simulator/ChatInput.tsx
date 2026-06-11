@@ -9,11 +9,13 @@ export function ChatInput() {
   const [text, setText] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
   const [queuedIds, setQueuedIds] = useState<string[]>([])
-  const { addMessage, currentSender, toggleSender } = useChatStore()
+  const { addMessage, currentSender, toggleSender, miniEmoticonMode } = useChatStore()
   const emoticons = useEmoticonStore((s) => s.emoticons)
   const chatUI = usePlatformStore((s) => s.getConfig().chatUI)
   const accentColor = usePlatformStore((s) => s.getConfig().accentColor)
-  const isQueueMode = chatUI.bubbleMode === 'inline-flow'
+
+  // 큐 모드: inline-flow 플랫폼(숲 등) 또는 카카오 미니이모티콘 모드
+  const isQueueMode = chatUI.bubbleMode === 'inline-flow' || miniEmoticonMode
   const isOther = currentSender === '상대방'
 
   const send = () => {
@@ -28,6 +30,7 @@ export function ChatInput() {
         type,
         text: hasText ? text.trim() : undefined,
         emoticonIds: hasEmotes ? [...queuedIds] : undefined,
+        isMini: miniEmoticonMode && chatUI.bubbleMode === 'bubbles',
       })
       setQueuedIds([])
       setText('')
@@ -42,7 +45,6 @@ export function ChatInput() {
   const handleEmoticonSelect = (emoticonId: string) => {
     if (isQueueMode) {
       setQueuedIds((prev) => [...prev, emoticonId])
-      // picker stays open — parent doesn't toggle
     } else {
       addMessage({ sender: currentSender, type: 'emoticon', emoticonId })
       setPickerOpen(false)
@@ -54,14 +56,12 @@ export function ChatInput() {
   }
 
   const canSend = isQueueMode ? (text.trim().length > 0 || queuedIds.length > 0) : text.trim().length > 0
-
-  // Accent-aware colors
-  const accentIsDark = accentColor === '#fee500' // kakao yellow uses dark text
+  const accentIsDark = accentColor === '#fee500'
   const sendBtnText = accentIsDark ? '#1a1a1a' : '#ffffff'
 
   return (
     <div className="relative border-t border-gray-200 bg-white">
-      {/* 큐 모드: 입력창 위에 이모티콘 미리보기 */}
+      {/* 큐 모드: 이모티콘 미리보기 */}
       {isQueueMode && queuedIds.length > 0 && (
         <div className="flex items-center gap-1.5 px-3 pt-2 pb-0 flex-wrap">
           {queuedIds.map((id, i) => {
@@ -98,7 +98,13 @@ export function ChatInput() {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
           onFocus={() => setPickerOpen(false)}
-          placeholder={isQueueMode ? '메시지 입력 (이모티콘은 위 😄 버튼으로 추가)' : '메시지 입력'}
+          placeholder={
+            miniEmoticonMode
+              ? '미니 이모티콘 모드 — 😄로 이모티콘 추가'
+              : isQueueMode
+                ? '메시지 입력 (이모티콘은 위 😄 버튼으로 추가)'
+                : '메시지 입력'
+          }
           className="flex-1 bg-gray-100 rounded-2xl px-3 py-1.5 text-sm outline-none focus:ring-2"
           style={{ '--tw-ring-color': accentColor } as React.CSSProperties}
         />

@@ -4,8 +4,10 @@ import type { ChatMessage, MessageSender } from '../types'
 interface ChatState {
   messages: ChatMessage[]
   currentSender: MessageSender
+  miniEmoticonMode: boolean
   setSender: (sender: MessageSender) => void
   toggleSender: () => void
+  setMiniEmoticonMode: (v: boolean) => void
   addMessage: (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => void
   clearMessages: () => void
   spamEmoticon: (emoticonId: string, count: number) => void
@@ -14,9 +16,11 @@ interface ChatState {
 export const useChatStore = create<ChatState>()((set, get) => ({
   messages: [],
   currentSender: '나',
+  miniEmoticonMode: false,
   setSender: (sender) => set({ currentSender: sender }),
   toggleSender: () =>
     set((s) => ({ currentSender: s.currentSender === '나' ? '상대방' : '나' })),
+  setMiniEmoticonMode: (v) => set({ miniEmoticonMode: v }),
   addMessage: (msg) =>
     set((s) => ({
       messages: [

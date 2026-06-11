@@ -1,12 +1,16 @@
 import { useThemeStore } from '../../store/themeStore'
 import { usePlatformStore } from '../../store/platformStore'
+import { useChatStore } from '../../store/chatStore'
 import { ContrastBadge } from '../shared/ContrastBadge'
 import clsx from 'clsx'
 
 export function ThemeToolbar() {
   const { activeTheme, customBgColor, setTheme, setCustomBg, getCurrentTheme, platformThemes } = useThemeStore()
   const accentColor = usePlatformStore((s) => s.getConfig().accentColor)
+  const platformId = usePlatformStore((s) => s.activePlatform)
+  const { miniEmoticonMode, setMiniEmoticonMode } = useChatStore()
   const theme = getCurrentTheme()
+  const isKakao = platformId === 'kakao'
 
   const hasCustomTheme = platformThemes.some((t) => t.key === 'custom')
 
@@ -61,7 +65,23 @@ export function ThemeToolbar() {
           </div>
         )}
       </div>
-      <ContrastBadge bgColor={theme.bgColor} />
+      <div className="flex items-center gap-3 flex-wrap">
+        <ContrastBadge bgColor={theme.bgColor} />
+        {isKakao && (
+          <button
+            onClick={() => setMiniEmoticonMode(!miniEmoticonMode)}
+            className={clsx(
+              'flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border-2 font-medium transition-all',
+              miniEmoticonMode
+                ? 'border-[#fee500] bg-[#fee500] text-gray-800 shadow-sm scale-105'
+                : 'border-transparent bg-gray-100 text-gray-500 hover:border-gray-300'
+            )}
+          >
+            <span>🤏</span>
+            미니 이모티콘 모드
+          </button>
+        )}
+      </div>
     </div>
   )
 }
