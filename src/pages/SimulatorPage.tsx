@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useEmoticonStore } from '../store/emoticonStore'
+import { usePlatformStore } from '../store/platformStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
@@ -11,10 +12,13 @@ export function SimulatorPage() {
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
   const count = useEmoticonStore((s) => s.emoticons.length)
   const [panelOpen, setPanelOpen] = useState(false)
+  const platformConfig = usePlatformStore((s) => s.getConfig())
+  const acceptAttr = platformConfig.spec.allowedTypes.join(',')
 
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
-    const converted = await Promise.all(files.map(fileToEmoticon))
+    const spec = usePlatformStore.getState().getConfig().spec
+    const converted = await Promise.all(files.map((f) => fileToEmoticon(f, spec)))
     addEmoticons(converted)
     e.target.value = ''
   }
@@ -24,8 +28,10 @@ export function SimulatorPage() {
       {/* 헤더 */}
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-800">멀티 테마 채팅 시뮬레이터</h1>
-          <p className="text-xs text-gray-400 mt-0.5">카카오톡 채팅 화면에서 이모티콘을 실시간 테스트하세요</p>
+          <h1 className="text-lg font-bold text-gray-800">채팅 시뮬레이터</h1>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {platformConfig.nameKo} 채팅 화면에서 이모티콘을 실시간 테스트하세요
+          </p>
         </div>
         <div className="flex items-center gap-3">
           {count > 0 && (
@@ -42,7 +48,8 @@ export function SimulatorPage() {
           </button>
           <button
             onClick={() => inputRef.current?.click()}
-            className="text-sm bg-[#fee500] hover:bg-yellow-400 text-gray-900 font-semibold px-4 py-2 rounded-xl transition-colors"
+            className="text-sm font-semibold px-4 py-2 rounded-xl transition-colors text-gray-900"
+            style={{ backgroundColor: platformConfig.accentColor }}
           >
             이모티콘 업로드
           </button>
@@ -50,7 +57,7 @@ export function SimulatorPage() {
             ref={inputRef}
             type="file"
             multiple
-            accept="image/gif,image/webp,image/png"
+            accept={acceptAttr}
             onChange={handleFiles}
             className="hidden"
           />

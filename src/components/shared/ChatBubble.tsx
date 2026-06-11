@@ -1,17 +1,27 @@
 import clsx from 'clsx'
 import type { ChatMessage, ChatTheme } from '../../types'
+import type { ChatUIStyle } from '../../config/platforms'
 import { useEmoticonStore } from '../../store/emoticonStore'
 
 interface Props {
   message: ChatMessage
   theme: ChatTheme
+  chatUI: ChatUIStyle
 }
 
 function formatTime(date: Date) {
   return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: true })
 }
 
-export function ChatBubble({ message, theme }: Props) {
+function bubbleTextColor(bgHex: string, darkFallback: string): string {
+  const r = parseInt(bgHex.slice(1, 3), 16)
+  const g = parseInt(bgHex.slice(3, 5), 16)
+  const b = parseInt(bgHex.slice(5, 7), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#1a1a1a' : darkFallback
+}
+
+export function ChatBubble({ message, theme, chatUI }: Props) {
   const emoticons = useEmoticonStore((s) => s.emoticons)
   const isMe = message.sender === '나'
   const emoticon = message.emoticonId
@@ -19,20 +29,23 @@ export function ChatBubble({ message, theme }: Props) {
     : null
 
   const isEmoticonOnly = message.type === 'emoticon'
+  const emoticonPx = chatUI.emoticonDisplayPx
+  const myBubble = chatUI.myBubbleColor ?? '#fee500'
+  const otherBubble = chatUI.otherBubbleColor ?? '#ffffff'
 
   return (
     <div className={clsx('flex items-end gap-1 mb-2', isMe ? 'flex-row-reverse' : 'flex-row')}>
       {/* Avatar — 상대방만 표시 */}
-      {!isMe && (
+      {!isMe && chatUI.showAvatar && (
         <div className="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-600 self-start mt-4">
-          상
+          {chatUI.otherLabel.charAt(0)}
         </div>
       )}
 
       <div className={clsx('flex flex-col gap-0.5 max-w-[240px]', isMe ? 'items-end' : 'items-start')}>
-        {!isMe && (
+        {!isMe && chatUI.showSenderName && (
           <span className="text-xs font-semibold mb-0.5" style={{ color: theme.textColor }}>
-            상대방
+            {chatUI.otherLabel}
           </span>
         )}
 
@@ -42,11 +55,13 @@ export function ChatBubble({ message, theme }: Props) {
             <img
               src={emoticon.dataUrl}
               alt={emoticon.name}
-              className="w-28 h-28 object-contain"
-              style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}
+              style={{ width: emoticonPx, height: emoticonPx, objectFit: 'contain' }}
+              className="drop-shadow-sm"
             />
             <div className={clsx('flex flex-col text-[10px] pb-1', isMe ? 'items-end' : 'items-start')}>
-              {isMe && <span style={{ color: theme.timestampColor }}>읽음</span>}
+              {isMe && chatUI.showReadReceipt && (
+                <span style={{ color: theme.timestampColor }}>읽음</span>
+              )}
               <span style={{ color: theme.timestampColor }}>{formatTime(message.timestamp)}</span>
             </div>
           </div>
@@ -59,8 +74,8 @@ export function ChatBubble({ message, theme }: Props) {
                 isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
               )}
               style={{
-                backgroundColor: isMe ? theme.myBubbleColor : theme.otherBubbleColor,
-                color: theme.textColor,
+                backgroundColor: isMe ? myBubble : otherBubble,
+                color: bubbleTextColor(isMe ? myBubble : otherBubble, theme.textColor),
                 boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                 maxWidth: '200px',
               }}
@@ -72,7 +87,7 @@ export function ChatBubble({ message, theme }: Props) {
                     <img
                       src={emoticon.dataUrl}
                       alt={emoticon.name}
-                      className="w-24 h-24 object-contain"
+                      style={{ width: emoticonPx * 0.85, height: emoticonPx * 0.85, objectFit: 'contain' }}
                     />
                   )}
                   {message.text && <span>{message.text}</span>}
@@ -80,7 +95,9 @@ export function ChatBubble({ message, theme }: Props) {
               )}
             </div>
             <div className={clsx('flex flex-col text-[10px] pb-1', isMe ? 'items-end' : 'items-start')}>
-              {isMe && <span style={{ color: theme.timestampColor }}>읽음</span>}
+              {isMe && chatUI.showReadReceipt && (
+                <span style={{ color: theme.timestampColor }}>읽음</span>
+              )}
               <span style={{ color: theme.timestampColor }}>{formatTime(message.timestamp)}</span>
             </div>
           </div>

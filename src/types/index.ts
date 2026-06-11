@@ -1,5 +1,5 @@
 export interface SpecWarning {
-  code: 'WRONG_SIZE' | 'TOO_LARGE' | 'WRONG_FORMAT';
+  code: 'WRONG_SIZE' | 'TOO_LARGE' | 'WRONG_FORMAT' | 'WRONG_SIZE_RANGE' | 'NOT_SQUARE' | 'ANIMATED_NOT_ALLOWED';
   message: string;
 }
 
@@ -7,7 +7,7 @@ export interface EmoticonFile {
   id: string;
   name: string;
   dataUrl: string;
-  mimeType: 'image/gif' | 'image/webp' | 'image/png';
+  mimeType: 'image/gif' | 'image/webp' | 'image/png' | 'image/jpeg';
   fileSizeBytes: number;
   width: number | null;
   height: number | null;
@@ -23,13 +23,15 @@ export interface ChatMessage {
   type: 'text' | 'emoticon' | 'mixed';
   text?: string;
   emoticonId?: string;
+  emoticonIds?: string[];
   timestamp: Date;
 }
 
-export type ThemeKey = 'light' | 'dark' | 'pink' | 'yellow' | 'custom';
+// ThemeKey is now a plain string to support per-platform theme keys
+export type ThemeKey = string;
 
 export interface ChatTheme {
-  key: ThemeKey;
+  key: string;
   labelKo: string;
   bgColor: string;
   myBubbleColor: string;
@@ -55,7 +57,7 @@ export interface ShareEmoticon {
 
 export interface SharePayload {
   emoticons: ShareEmoticon[];
-  themeKey: ThemeKey;
+  themeKey: string;
   customBg?: string;
 }
 

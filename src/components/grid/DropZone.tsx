@@ -1,25 +1,41 @@
 import { useRef } from 'react'
 import { useDropZone } from '../../hooks/useDropZone'
 import { useEmoticonStore } from '../../store/emoticonStore'
+import { usePlatformStore } from '../../store/platformStore'
 import { fileToEmoticon } from '../../utils/fileToEmoticon'
 import clsx from 'clsx'
-
-const ACCEPTED = ['image/gif', 'image/webp', 'image/png']
 
 export function DropZone() {
   const inputRef = useRef<HTMLInputElement>(null)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
   const clear = useEmoticonStore((s) => s.clear)
   const count = useEmoticonStore((s) => s.emoticons.length)
+  const platformConfig = usePlatformStore((s) => s.getConfig())
+  const { spec, grid, accentColor } = platformConfig
+
+  const accepted = spec.allowedTypes
+  const formatList = accepted.map((t) => t.split('/')[1].toUpperCase()).join(' / ')
+  const sizeHint =
+    spec.expectedWidth != null
+      ? `${spec.expectedWidth}×${spec.expectedHeight ?? spec.expectedWidth}px`
+      : `${spec.minDimension ?? 48}~${spec.maxDimension ?? 480}px (정사각)`
+  const countHint =
+    grid.countOptions.length > 0
+      ? `${grid.countOptions.join('종 또는 ')}종`
+      : spec.minSetCount
+        ? `${spec.minSetCount}종 이상`
+        : '제한 없음'
 
   const handleFiles = async (files: File[]) => {
-    const converted = await Promise.all(files.map(fileToEmoticon))
+    const converted = await Promise.all(
+      files.map((f) => fileToEmoticon(f, usePlatformStore.getState().getConfig().spec))
+    )
     addEmoticons(converted)
   }
 
   const { isDragging, onDragOver, onDragLeave, onDrop, onInputChange } = useDropZone({
     onFiles: handleFiles,
-    accept: ACCEPTED,
+    accept: accepted,
   })
 
   return (
@@ -32,22 +48,27 @@ export function DropZone() {
         className={clsx(
           'border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
           isDragging
-            ? 'border-[#fee500] bg-amber-50 scale-[1.01]'
+            ? 'scale-[1.01]'
             : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
         )}
+        style={
+          isDragging
+            ? { borderColor: accentColor, backgroundColor: `${accentColor}10` }
+            : undefined
+        }
       >
         <div className="text-4xl mb-3">📂</div>
         <p className="font-semibold text-gray-700 mb-1">
           이미지를 드래그하거나 클릭하여 업로드
         </p>
         <p className="text-sm text-gray-400">
-          GIF / WEBP / PNG 지원 · 한 번에 24종 또는 32종 업로드 가능
+          {formatList} 지원 · {sizeHint} · {countHint}
         </p>
         <input
           ref={inputRef}
           type="file"
           multiple
-          accept={ACCEPTED.join(',')}
+          accept={accepted.join(',')}
           onChange={onInputChange}
           className="hidden"
         />

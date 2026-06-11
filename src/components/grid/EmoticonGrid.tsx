@@ -71,7 +71,7 @@ function SortableItem({ emoticon, index }: SortableItemProps) {
 }
 
 interface Props {
-  columns?: 6 | 8
+  columns?: number
 }
 
 export function EmoticonGrid({ columns = 6 }: Props) {
@@ -91,12 +91,14 @@ export function EmoticonGrid({ columns = 6 }: Props) {
     reorder(fromIndex, toIndex)
   }
 
-  const gridCols = columns === 8 ? 'grid-cols-8' : 'grid-cols-6'
-
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={emoticons.map((e) => e.id)} strategy={rectSortingStrategy}>
-        <div className={`grid ${gridCols} gap-2`}>
+        {/* inline style for dynamic columns — Tailwind purges dynamic class names */}
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+        >
           {emoticons.map((e, i) => (
             <SortableItem key={e.id} emoticon={e} index={i} />
           ))}

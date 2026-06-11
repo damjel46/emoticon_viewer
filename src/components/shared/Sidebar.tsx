@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import clsx from 'clsx'
 import { useAuthStore } from '../../store/authStore'
+import { usePlatformStore } from '../../store/platformStore'
+import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
+import { PlatformLogo } from './PlatformLogo'
 
 const NAV_ITEMS = [
   { to: '/', label: '시뮬레이터', icon: '💬' },
@@ -22,7 +25,12 @@ export function Sidebar({ collapsed, onToggle }: Props) {
   const signOut = useAuthStore((s) => s.signOut)
   const [showLogin, setShowLogin] = useState(false)
 
+  const activePlatform = usePlatformStore((s) => s.activePlatform)
+  const setPlatform = usePlatformStore((s) => s.setPlatform)
+  const platformConfig = usePlatformStore((s) => s.getConfig())
+
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
+  const accentColor = platformConfig.accentColor
 
   return (
     <>
@@ -34,12 +42,53 @@ export function Sidebar({ collapsed, onToggle }: Props) {
       >
         {/* 로고 */}
         {!collapsed && (
-          <div className="mb-8 px-2">
-            <div className="text-[#fee500] font-bold text-lg leading-tight">카카오</div>
+          <div className="mb-5 px-2">
+            <div className="font-bold text-lg leading-tight" style={{ color: accentColor }}>
+              {platformConfig.nameShort}
+            </div>
             <div className="text-white/70 text-xs mt-0.5">이모티콘 워크스페이스</div>
           </div>
         )}
-        {collapsed && <div className="mb-8 flex justify-center text-[#fee500] font-bold text-lg">카</div>}
+        {collapsed && (
+          <div className="mb-5 flex justify-center">
+            <PlatformLogo id={platformConfig.id} size={28} />
+          </div>
+        )}
+
+        {/* 플랫폼 선택기 */}
+        <div className={clsx('mb-4', collapsed ? 'flex flex-col items-center gap-1' : 'px-1')}>
+          {!collapsed && (
+            <p className="text-[9px] font-bold text-white/30 uppercase tracking-wider mb-2 px-1">
+              플랫폼
+            </p>
+          )}
+          <div className={clsx('flex gap-1', collapsed ? 'flex-col' : 'flex-row flex-wrap')}>
+            {PLATFORM_ORDER.map((id) => {
+              const p = PLATFORMS[id]
+              const isActive = activePlatform === id
+              return (
+                <button
+                  key={id}
+                  onClick={() => setPlatform(id)}
+                  title={p.nameKo}
+                  className={clsx(
+                    'w-8 h-8 flex items-center justify-center rounded-lg text-base transition-all',
+                    isActive ? 'scale-110' : 'opacity-40 hover:opacity-75'
+                  )}
+                  style={
+                    isActive
+                      ? { outline: `2px solid ${p.accentColor}`, backgroundColor: `${p.accentColor}22` }
+                      : undefined
+                  }
+                >
+                  <PlatformLogo id={p.id} size={22} />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="border-t border-white/10 mb-3" />
 
         {/* 네비게이션 */}
         <nav className="flex flex-col gap-1 flex-1">
@@ -54,9 +103,12 @@ export function Sidebar({ collapsed, onToggle }: Props) {
                   'flex items-center rounded-xl text-sm font-medium transition-colors',
                   collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
                   isActive
-                    ? 'bg-[#fee500] text-[#3c1e1e]'
+                    ? 'text-[#1a1a1a]'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                 )
+              }
+              style={({ isActive }) =>
+                isActive ? { backgroundColor: accentColor } : undefined
               }
             >
               <span className="text-base">{item.icon}</span>
@@ -69,14 +121,17 @@ export function Sidebar({ collapsed, onToggle }: Props) {
         <div className={clsx('mt-4 border-t border-white/10 pt-3', collapsed ? 'flex justify-center' : '')}>
           {user ? (
             <div className={clsx('flex items-center', collapsed ? 'justify-center' : 'gap-2 px-2')}>
-              <div className="w-7 h-7 rounded-full bg-[#fee500] flex items-center justify-center text-[#3c1e1e] font-bold text-xs flex-shrink-0">
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
+                style={{ backgroundColor: accentColor, color: '#1a1a1a' }}
+              >
                 {avatarLetter}
               </div>
               {!collapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-xs font-medium truncate">{user.email}</p>
                   {profile?.is_premium && (
-                    <p className="text-[#fee500] text-[10px]">⭐ 프리미엄</p>
+                    <p className="text-[10px]" style={{ color: accentColor }}>⭐ 프리미엄</p>
                   )}
                 </div>
               )}

@@ -1,7 +1,11 @@
 import type { EmoticonFile } from '../types'
-import { validateEmoticonFile } from './specValidator'
+import type { PlatformSpec } from '../config/platforms'
+import { validateEmoticonFile, KAKAO_SPEC } from './specValidator'
 
-export async function fileToEmoticon(file: File): Promise<EmoticonFile> {
+export async function fileToEmoticon(
+  file: File,
+  spec: PlatformSpec = KAKAO_SPEC
+): Promise<EmoticonFile> {
   const dataUrl = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
@@ -9,7 +13,7 @@ export async function fileToEmoticon(file: File): Promise<EmoticonFile> {
     reader.readAsDataURL(file)
   })
 
-  const validationWarnings = await validateEmoticonFile(file)
+  const validationWarnings = await validateEmoticonFile(file, spec)
 
   const dimensions = await new Promise<{ width: number; height: number }>((resolve) => {
     const img = new Image()
