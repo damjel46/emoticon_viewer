@@ -21,17 +21,17 @@ export function MobileEmoticonPickerTray({ emoticons, open, onToggle, onSelect, 
 
       {open && (
         <div
-          className="absolute bottom-full left-0 right-0 bg-white border-t border-gray-200 overflow-y-auto z-10"
-          style={{ maxHeight: '180px' }}
+          className="absolute bottom-full left-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-y-auto z-20"
+          style={{ width: '240px', maxHeight: '200px', marginBottom: '4px' }}
         >
           <div className="grid grid-cols-4 gap-1 p-2">
             {emoticons.map((e) => (
               <button
                 key={e.id}
                 onClick={() => onSelect(e.id)}
-                className="aspect-square bg-gray-50 rounded-xl flex items-center justify-center active:scale-95 transition-transform"
+                className="aspect-square bg-gray-50 rounded-lg flex items-center justify-center active:scale-95 transition-transform hover:bg-gray-100"
               >
-                <img src={e.dataUrl} alt={e.name} className="w-full h-full object-contain p-1" />
+                <img src={e.dataUrl} alt={e.name} className="w-full h-full object-contain p-0.5" />
               </button>
             ))}
           </div>

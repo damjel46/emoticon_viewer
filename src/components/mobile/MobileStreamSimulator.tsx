@@ -47,8 +47,14 @@ const VIEWER_COLORS = [
   '#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7',
   '#748ffc', '#da77f2', '#f783ac', '#63e6be', '#74c0fc',
 ]
+const AVATAR_BG_COLORS = [
+  '#e53935', '#8e24aa', '#1e88e5', '#00897b',
+  '#f4511e', '#3949ab', '#039be5', '#43a047',
+  '#fb8c00', '#6d4c41', '#546e7a', '#e91e63',
+]
 const getViewerName = (seed: number) => VIEWER_NAMES[seed % VIEWER_NAMES.length]
 const getViewerColor = (seed: number) => VIEWER_COLORS[seed % VIEWER_COLORS.length]
+const getAvatarBg = (seed: number) => AVATAR_BG_COLORS[seed % AVATAR_BG_COLORS.length]
 
 // ─── 타입 정의 ────────────────────────────────────────────────────────────
 interface ChatMessage {
@@ -181,33 +187,61 @@ export function MobileStreamSimulator({ emoticons, platformId }: Props) {
         {messages.map((msg) => {
           const name = getViewerName(msg.viewerSeed)
           const nameColor = getViewerColor(msg.viewerSeed)
+          const avatarBg = getAvatarBg(msg.viewerSeed)
           const ids = msg.emoticonIds ?? []
           const hasText = !!msg.text
           const px = getEmoticonPx(ids.length, hasText, chatUI.emoticonDisplayPx, chatUI.scaleSingleEmote)
 
+          const messageContent = (
+            <span className="inline-flex items-center gap-1 flex-wrap min-w-0">
+              {hasText && (
+                <span className="text-[13px] leading-5 break-words" style={{ color: textColor }}>
+                  {msg.text}
+                </span>
+              )}
+              {ids.map((id, i) => {
+                const e = emoticons.find((x) => x.id === id)
+                return e ? (
+                  <img
+                    key={i}
+                    src={e.dataUrl}
+                    alt={e.name}
+                    style={{ width: px, height: px, objectFit: 'contain', verticalAlign: 'middle', flexShrink: 0 }}
+                  />
+                ) : null
+              })}
+            </span>
+          )
+
+          if (chatUI.showAvatar) {
+            // YouTube 스타일: 아바타 + @아이디 + 메시지
+            return (
+              <div key={msg.id} className="flex items-start gap-2 mb-2">
+                <div
+                  className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[11px] font-bold mt-0.5"
+                  style={{ backgroundColor: avatarBg }}
+                >
+                  {name[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[12px] font-semibold" style={{ color: nameColor }}>
+                    @{name}
+                  </span>
+                  <div className="flex items-center gap-1 flex-wrap mt-0.5">
+                    {messageContent}
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
+          // 인라인 스타일 (SOOP, Twitch, 치지직)
           return (
             <div key={msg.id} className="flex items-start gap-1.5 mb-1.5 flex-wrap">
               <span className="text-[11px] font-semibold flex-shrink-0 mt-0.5 leading-5" style={{ color: nameColor }}>
                 {name}
               </span>
-              <span className="inline-flex items-center gap-1 flex-wrap min-w-0">
-                {hasText && (
-                  <span className="text-[13px] leading-5 break-words" style={{ color: textColor }}>
-                    {msg.text}
-                  </span>
-                )}
-                {ids.map((id, i) => {
-                  const e = emoticons.find((x) => x.id === id)
-                  return e ? (
-                    <img
-                      key={i}
-                      src={e.dataUrl}
-                      alt={e.name}
-                      style={{ width: px, height: px, objectFit: 'contain', verticalAlign: 'middle', flexShrink: 0 }}
-                    />
-                  ) : null
-                })}
-              </span>
+              {messageContent}
             </div>
           )
         })}
