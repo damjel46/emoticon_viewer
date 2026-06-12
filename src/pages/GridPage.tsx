@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useEmoticonStore } from '../store/emoticonStore'
+import { useActiveEmoticons } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
 import { DropZone } from '../components/grid/DropZone'
 import { EmoticonGrid } from '../components/grid/EmoticonGrid'
@@ -12,7 +12,7 @@ export function GridPage() {
   const [gridCount, setGridCount] = useState(grid.defaultCount)
   const [showShop, setShowShop] = useState(false)
   const [showKeyboard, setShowKeyboard] = useState(false)
-  const count = useEmoticonStore((s) => s.emoticons.length)
+  const count = useActiveEmoticons().length
 
   // Reset count when platform changes
   useEffect(() => {

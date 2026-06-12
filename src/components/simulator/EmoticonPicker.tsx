@@ -1,6 +1,17 @@
 import { useState } from 'react'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 import clsx from 'clsx'
+
+function SmileyIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="9" cy="10" r="0.5" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="10" r="0.5" fill="currentColor" stroke="none" />
+      <path d="M8.5 14.5c1 1.5 5.5 1.5 7 0" />
+    </svg>
+  )
+}
 
 interface Props {
   onSelect: (emoticonId: string) => void
@@ -13,7 +24,7 @@ interface Props {
 type PickerTab = 'recent' | 'all'
 
 export function EmoticonPicker({ onSelect, open, onToggle, accentColor = '#fee500', queueMode = false }: Props) {
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const [tab, setTab] = useState<PickerTab>('all')
   const [recentIds, setRecentIds] = useState<string[]>([])
 
@@ -21,10 +32,10 @@ export function EmoticonPicker({ onSelect, open, onToggle, accentColor = '#fee50
     return (
       <button
         disabled
-        className="w-9 h-9 rounded-full flex items-center justify-center text-xl text-gray-300"
+        className="w-9 h-9 rounded-full flex items-center justify-center text-gray-300"
         title="이모티콘 없음 (먼저 업로드하세요)"
       >
-        😄
+        <SmileyIcon />
       </button>
     )
   }
@@ -44,12 +55,12 @@ export function EmoticonPicker({ onSelect, open, onToggle, accentColor = '#fee50
       <button
         onClick={onToggle}
         className={clsx(
-          'w-9 h-9 rounded-full flex items-center justify-center text-xl transition-colors',
-          open ? 'opacity-100' : 'text-gray-500 hover:text-gray-700'
+          'w-9 h-9 rounded-full flex items-center justify-center transition-colors',
+          open ? 'text-gray-800' : 'text-gray-500 hover:text-gray-700'
         )}
         title="이모티콘"
       >
-        😄
+        <SmileyIcon />
       </button>
 
       {open && (

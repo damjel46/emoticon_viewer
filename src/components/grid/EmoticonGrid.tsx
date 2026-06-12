@@ -14,7 +14,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useEmoticonStore, useActiveEmoticons } from '../../store/emoticonStore'
 import type { EmoticonFile } from '../../types'
 import clsx from 'clsx'
 
@@ -75,7 +75,7 @@ interface Props {
 }
 
 export function EmoticonGrid({ columns = 6 }: Props) {
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const reorder = useEmoticonStore((s) => s.reorder)
 
   const sensors = useSensors(

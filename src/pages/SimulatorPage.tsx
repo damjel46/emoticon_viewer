@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { useEmoticonStore } from '../store/emoticonStore'
+import { useEmoticonStore, useActiveEmoticons } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
 import { useChatStore } from '../store/chatStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
@@ -7,13 +7,18 @@ import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
 import { ChatInput } from '../components/simulator/ChatInput'
 import { SpamButton } from '../components/simulator/SpamButton'
+import { NaverSubModeBar } from '../components/simulator/NaverSubModeBar'
+import { NaverCafeSimulator } from '../components/simulator/NaverCafeSimulator'
+import { NaverBlogSimulator } from '../components/simulator/NaverBlogSimulator'
 
 export function SimulatorPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
-  const count = useEmoticonStore((s) => s.emoticons.length)
+  const count = useActiveEmoticons().length
   const [panelOpen, setPanelOpen] = useState(false)
   const platformConfig = usePlatformStore((s) => s.getConfig())
+  const activePlatform = usePlatformStore((s) => s.activePlatform)
+  const naverSubMode = usePlatformStore((s) => s.naverSubMode ?? 'chzzk')
   const miniEmoticonMode = useChatStore((s) => s.miniEmoticonMode)
   const activeSpec = miniEmoticonMode && platformConfig.miniSpec
     ? platformConfig.miniSpec
@@ -74,12 +79,26 @@ export function SimulatorPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* 채팅 시뮬레이터 */}
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-gray-100">
-          <ThemeToolbar />
-          <div className="flex-1 overflow-hidden">
-            <ChatSimulator />
-          </div>
-          <SpamButton />
-          <ChatInput />
+          {activePlatform === 'ogq' && <NaverSubModeBar />}
+
+          {activePlatform === 'ogq' && naverSubMode === 'cafe' ? (
+            <div className="flex-1 overflow-y-auto">
+              <NaverCafeSimulator />
+            </div>
+          ) : activePlatform === 'ogq' && naverSubMode === 'blog' ? (
+            <div className="flex-1 overflow-y-auto">
+              <NaverBlogSimulator />
+            </div>
+          ) : (
+            <>
+              <ThemeToolbar />
+              <div className="flex-1 overflow-hidden">
+                <ChatSimulator />
+              </div>
+              <SpamButton />
+              <ChatInput />
+            </>
+          )}
         </div>
 
         {/* 우측 안내 패널 (토글) */}

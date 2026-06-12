@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { EmoticonFile } from '../types'
+import type { PlatformId } from '../config/platforms'
+import { usePlatformStore } from './platformStore'
 
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
   const result = [...arr]
@@ -9,8 +11,10 @@ function arrayMove<T>(arr: T[], from: number, to: number): T[] {
   return result
 }
 
+type ByPlatform = Partial<Record<PlatformId, EmoticonFile[]>>
+
 interface EmoticonState {
-  emoticons: EmoticonFile[]
+  byPlatform: ByPlatform
   addEmoticons: (files: EmoticonFile[]) => void
   removeEmoticon: (id: string) => void
   reorder: (fromIndex: number, toIndex: number) => void
@@ -20,15 +24,49 @@ interface EmoticonState {
 export const useEmoticonStore = create<EmoticonState>()(
   persist(
     (set) => ({
-      emoticons: [],
-      addEmoticons: (files) =>
-        set((s) => ({ emoticons: [...s.emoticons, ...files] })),
-      removeEmoticon: (id) =>
-        set((s) => ({ emoticons: s.emoticons.filter((e) => e.id !== id) })),
-      reorder: (from, to) =>
-        set((s) => ({ emoticons: arrayMove(s.emoticons, from, to) })),
-      clear: () => set({ emoticons: [] }),
+      byPlatform: {},
+      addEmoticons: (files) => {
+        const pid = usePlatformStore.getState().activePlatform
+        set((s) => ({
+          byPlatform: {
+            ...s.byPlatform,
+            [pid]: [...(s.byPlatform[pid] ?? []), ...files],
+          },
+        }))
+      },
+      removeEmoticon: (id) => {
+        const pid = usePlatformStore.getState().activePlatform
+        set((s) => ({
+          byPlatform: {
+            ...s.byPlatform,
+            [pid]: (s.byPlatform[pid] ?? []).filter((e) => e.id !== id),
+          },
+        }))
+      },
+      reorder: (from, to) => {
+        const pid = usePlatformStore.getState().activePlatform
+        set((s) => ({
+          byPlatform: {
+            ...s.byPlatform,
+            [pid]: arrayMove(s.byPlatform[pid] ?? [], from, to),
+          },
+        }))
+      },
+      clear: () => {
+        const pid = usePlatformStore.getState().activePlatform
+        set((s) => ({
+          byPlatform: {
+            ...s.byPlatform,
+            [pid]: [],
+          },
+        }))
+      },
     }),
-    { name: 'kakao-emoticons' }
+    { name: 'emoticons-v2' }
   )
 )
+
+export function useActiveEmoticons(): EmoticonFile[] {
+  const activePlatform = usePlatformStore((s) => s.activePlatform)
+  return useEmoticonStore((s) => s.byPlatform[activePlatform] ?? [])
+}

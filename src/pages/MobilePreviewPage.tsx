@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { fetchShare } from '../utils/uploadShare'
 import { CHAT_THEMES } from '../store/themeStore'
 import type { ShareEmoticon, ThemeKey } from '../types'
+import { MobileStreamSimulator } from '../components/mobile/MobileStreamSimulator'
+import { MobileNaverBlogSimulator } from '../components/mobile/MobileNaverBlogSimulator'
+import { MobileNaverCafeSimulator } from '../components/mobile/MobileNaverCafeSimulator'
 
 interface Message {
   id: string
@@ -19,6 +22,58 @@ function formatTime(date: Date) {
 export function MobilePreviewPage() {
   const [emoticons, setEmoticons] = useState<ShareEmoticon[]>([])
   const [loaded, setLoaded] = useState(false)
+  const [platformId, setPlatformId] = useState<string>('kakao')
+  const [naverSubMode, setNaverSubMode] = useState<string>('chzzk')
+
+  useEffect(() => {
+    const id = window.location.hash.replace(/^#/, '')
+    if (!id) { setLoaded(true); return }
+    fetchShare(id).then((payload) => {
+      if (payload) {
+        setEmoticons(payload.emoticons as ShareEmoticon[])
+        if (payload.platformId) setPlatformId(payload.platformId)
+        if (payload.naverSubMode) setNaverSubMode(payload.naverSubMode)
+      }
+      setLoaded(true)
+    })
+  }, [])
+
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <span className="text-gray-400 text-sm">불러오는 중...</span>
+      </div>
+    )
+  }
+
+  if (emoticons.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6 text-center">
+        <div className="text-4xl mb-3">📂</div>
+        <p className="font-semibold text-gray-700 mb-1">이모티콘이 없습니다</p>
+        <p className="text-xs text-gray-400">데스크탑에서 QR 코드를 다시 생성해주세요</p>
+      </div>
+    )
+  }
+
+  // 스트리밍 플랫폼
+  if (platformId === 'soop' || platformId === 'youtube' || platformId === 'twitch') {
+    return <MobileStreamSimulator emoticons={emoticons} platformId={platformId} />
+  }
+
+  // OGQ(네이버) 계열
+  if (platformId === 'ogq') {
+    if (naverSubMode === 'blog') return <MobileNaverBlogSimulator emoticons={emoticons} />
+    if (naverSubMode === 'cafe') return <MobileNaverCafeSimulator emoticons={emoticons} />
+    // chzzk
+    return <MobileStreamSimulator emoticons={emoticons} platformId="ogq" />
+  }
+
+  // 카카오 (기본)
+  return <KakaoMobileSimulator emoticons={emoticons} />
+}
+
+function KakaoMobileSimulator({ emoticons }: { emoticons: ShareEmoticon[] }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [text, setText] = useState('')
   const [sender, setSender] = useState<'나' | '상대방'>('나')
@@ -28,15 +83,6 @@ export function MobilePreviewPage() {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const theme = CHAT_THEMES[themeKey]
-
-  useEffect(() => {
-    const id = window.location.hash.replace(/^#/, '')
-    if (!id) { setLoaded(true); return }
-    fetchShare(id).then((payload) => {
-      if (payload) setEmoticons(payload.emoticons as ShareEmoticon[])
-      setLoaded(true)
-    })
-  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -57,27 +103,8 @@ export function MobilePreviewPage() {
     inputRef.current?.focus()
   }
 
-  if (!loaded) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <span className="text-gray-400 text-sm">불러오는 중...</span>
-      </div>
-    )
-  }
-
-  if (emoticons.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6 text-center">
-        <div className="text-4xl mb-3">📂</div>
-        <p className="font-semibold text-gray-700 mb-1">이모티콘이 없습니다</p>
-        <p className="text-xs text-gray-400">데스크탑에서 QR 코드를 다시 생성해주세요</p>
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ backgroundColor: theme.bgColor }}>
-
       {/* 헤더 */}
       <div
         className="flex items-center px-3 py-2 border-b flex-shrink-0 gap-2"
@@ -86,7 +113,6 @@ export function MobilePreviewPage() {
         <p className="text-sm font-semibold flex-1 truncate" style={{ color: theme.textColor }}>
           이모티콘 테스트방
         </p>
-        {/* 테마 도트 */}
         <div className="flex gap-1 flex-shrink-0">
           {(Object.keys(CHAT_THEMES) as ThemeKey[]).filter((k) => k !== 'custom').map((k) => (
             <button
@@ -165,7 +191,7 @@ export function MobilePreviewPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* 이모티콘 피커 트레이 (토글) */}
+      {/* 이모티콘 피커 트레이 */}
       {pickerOpen && (
         <div className="flex-shrink-0 bg-white border-t border-gray-200 overflow-y-auto" style={{ maxHeight: '180px' }}>
           <div className="grid grid-cols-4 gap-1 p-2">
@@ -184,7 +210,6 @@ export function MobilePreviewPage() {
 
       {/* 입력창 */}
       <div className="flex-shrink-0 bg-white border-t border-gray-200 px-2 py-1.5 flex items-center gap-1.5">
-        {/* 이모티콘 토글 */}
         <button
           onClick={() => { setPickerOpen((v) => !v); inputRef.current?.blur() }}
           className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-colors"
@@ -192,8 +217,6 @@ export function MobilePreviewPage() {
         >
           <span className="text-lg leading-none">😊</span>
         </button>
-
-        {/* 텍스트 입력 */}
         <input
           ref={inputRef}
           type="text"
@@ -204,8 +227,6 @@ export function MobilePreviewPage() {
           placeholder="메시지..."
           className="flex-1 min-w-0 bg-gray-100 rounded-full px-3 py-1.5 text-sm outline-none"
         />
-
-        {/* 나/상대방 토글 */}
         <button
           onClick={() => setSender((s) => (s === '나' ? '상대방' : '나'))}
           className="flex-shrink-0 text-[10px] px-1.5 py-1.5 rounded-lg bg-gray-100 text-gray-500 font-medium leading-tight text-center"
@@ -213,8 +234,6 @@ export function MobilePreviewPage() {
         >
           {sender === '나' ? '나' : '상'}
         </button>
-
-        {/* 전송 */}
         <button
           onClick={sendText}
           disabled={!text.trim()}

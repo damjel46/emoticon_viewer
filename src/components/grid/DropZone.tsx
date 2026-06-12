@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useDropZone } from '../../hooks/useDropZone'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useEmoticonStore, useActiveEmoticons } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
 import { fileToEmoticon } from '../../utils/fileToEmoticon'
 import clsx from 'clsx'
@@ -9,7 +9,7 @@ export function DropZone() {
   const inputRef = useRef<HTMLInputElement>(null)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
   const clear = useEmoticonStore((s) => s.clear)
-  const count = useEmoticonStore((s) => s.emoticons.length)
+  const count = useActiveEmoticons().length
   const platformConfig = usePlatformStore((s) => s.getConfig())
   const { spec, grid, accentColor } = platformConfig
 

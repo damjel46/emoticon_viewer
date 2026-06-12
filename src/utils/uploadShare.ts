@@ -5,6 +5,8 @@ interface UploadPayload {
   emoticons: ShareEmoticon[]
   themeKey: string
   customBg?: string
+  platformId?: string
+  naverSubMode?: string
 }
 
 export async function uploadShare(payload: UploadPayload): Promise<string> {

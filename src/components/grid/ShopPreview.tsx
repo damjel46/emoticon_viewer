@@ -1,4 +1,4 @@
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
 import type { EmoticonFile } from '../../types'
 
@@ -191,7 +191,7 @@ function TwitchEmotePanel({ emoticons }: { emoticons: EmoticonFile[] }) {
 
 // ── Router ─────────────────────────────────────────────────
 export function ShopPreview() {
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const platformId = usePlatformStore((s) => s.activePlatform)
 
   switch (platformId) {

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
-import type { ChatMessage } from '../../types'
+import type { ChatMessage, EmoticonFile } from '../../types'
 import type { ChatUIStyle } from '../../config/platforms'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 
 const VIEWER_NAMES = [
   '별빛소나기', '파란하늘92', 'cooluser99', 'haneul_j', '진주조개',
@@ -43,7 +43,7 @@ interface Props {
 }
 
 export function LiveChatView({ messages, chatUI, bgColor, textColor }: Props) {
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -117,7 +117,7 @@ function MessageContent({
   msg, emotes, chatUI, textColor,
 }: {
   msg: ChatMessage
-  emotes: (ReturnType<typeof useEmoticonStore.getState>['emoticons'][number] | undefined)[]
+  emotes: (EmoticonFile | undefined)[]
   chatUI: ChatUIStyle
   textColor: string
 }) {

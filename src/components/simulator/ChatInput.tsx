@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import clsx from 'clsx'
 import { useChatStore } from '../../store/chatStore'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
 import { EmoticonPicker } from './EmoticonPicker'
 
@@ -10,7 +10,7 @@ export function ChatInput() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [queuedIds, setQueuedIds] = useState<string[]>([])
   const { addMessage, currentSender, toggleSender, miniEmoticonMode } = useChatStore()
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const chatUI = usePlatformStore((s) => s.getConfig().chatUI)
   const accentColor = usePlatformStore((s) => s.getConfig().accentColor)
 

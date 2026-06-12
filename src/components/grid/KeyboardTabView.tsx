@@ -1,7 +1,7 @@
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 
 export function KeyboardTabView() {
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
 
   return (
     <div className="bg-[#d1d5db] rounded-xl overflow-hidden border border-gray-300">

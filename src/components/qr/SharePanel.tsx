@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 import { useThemeStore } from '../../store/themeStore'
+import { usePlatformStore } from '../../store/platformStore'
 import { uploadShare } from '../../utils/uploadShare'
 import clsx from 'clsx'
 
@@ -12,9 +13,11 @@ export function SharePanel({ onUrlChange }: Props) {
   const [copied, setCopied] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const activeTheme = useThemeStore((s) => s.activeTheme)
   const customBgColor = useThemeStore((s) => s.customBgColor)
+  const activePlatform = usePlatformStore((s) => s.activePlatform)
+  const naverSubMode = usePlatformStore((s) => s.naverSubMode)
 
   const generate = async () => {
     setUploading(true)
@@ -24,6 +27,8 @@ export function SharePanel({ onUrlChange }: Props) {
         emoticons: emoticons.map((e) => ({ id: e.id, name: e.name, dataUrl: e.dataUrl, mimeType: e.mimeType })),
         themeKey: activeTheme,
         customBg: customBgColor,
+        platformId: activePlatform,
+        naverSubMode,
       })
       onUrlChange(url)
       return url

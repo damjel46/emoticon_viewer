@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import type { ChatMessage, ChatTheme } from '../../types'
 import type { ChatUIStyle } from '../../config/platforms'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 
 interface Props {
   message: ChatMessage
@@ -22,7 +22,7 @@ function bubbleTextColor(bgHex: string, darkFallback: string): string {
 }
 
 export function ChatBubble({ message, theme, chatUI }: Props) {
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const isMe = message.sender === '나'
   const myBubble = chatUI.myBubbleColor ?? '#fee500'
   const otherBubble = chatUI.otherBubbleColor ?? '#ffffff'

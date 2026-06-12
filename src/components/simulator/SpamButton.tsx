@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useEmoticonStore } from '../../store/emoticonStore'
+import { useActiveEmoticons } from '../../store/emoticonStore'
 import { useChatStore } from '../../store/chatStore'
 import { useSpamChat } from '../../hooks/useSpamChat'
 
@@ -7,7 +7,7 @@ export function SpamButton() {
   const [selectedId, setSelectedId] = useState<string>('')
   const [count, setCount] = useState(5)
   const [collapsed, setCollapsed] = useState(false)
-  const emoticons = useEmoticonStore((s) => s.emoticons)
+  const emoticons = useActiveEmoticons()
   const currentSender = useChatStore((s) => s.currentSender)
   const { spam } = useSpamChat()
 
