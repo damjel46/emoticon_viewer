@@ -17,6 +17,10 @@ export interface EmoticonFile {
 
 export type MessageSender = '나' | '상대방';
 
+export type ContentSegment =
+  | { kind: 'text'; value: string }
+  | { kind: 'emoticon'; emoticonId: string }
+
 export interface ChatMessage {
   id: string;
   sender: MessageSender;
@@ -24,6 +28,7 @@ export interface ChatMessage {
   text?: string;
   emoticonId?: string;
   emoticonIds?: string[];
+  segments?: ContentSegment[];
   isMini?: boolean;
   timestamp: Date;
 }

@@ -1,22 +1,12 @@
-import { useState } from 'react'
 import { useThemeStore } from '../../store/themeStore'
 import { usePlatformStore } from '../../store/platformStore'
-import { useChatStore } from '../../store/chatStore'
-import { useAuthStore } from '../../store/authStore'
 import { ContrastBadge } from '../shared/ContrastBadge'
-import { InfoModal } from '../shared/InfoModal'
 import clsx from 'clsx'
 
 export function ThemeToolbar() {
   const { activeTheme, customBgColor, setTheme, setCustomBg, getCurrentTheme, platformThemes } = useThemeStore()
   const accentColor = usePlatformStore((s) => s.getConfig().accentColor)
-  const platformId = usePlatformStore((s) => s.activePlatform)
-  const { miniEmoticonMode, setMiniEmoticonMode } = useChatStore()
-  const profile = useAuthStore((s) => s.profile)
-  const [showPremiumPopup, setShowPremiumPopup] = useState(false)
   const theme = getCurrentTheme()
-  const isKakao = platformId === 'kakao'
-  const isPremium = profile?.is_premium ?? false
 
   const hasCustomTheme = platformThemes.some((t) => t.key === 'custom')
 
@@ -73,46 +63,6 @@ export function ThemeToolbar() {
       </div>
       <div className="flex items-center gap-3 flex-wrap">
         <ContrastBadge bgColor={theme.bgColor} />
-        {isKakao && (
-          <button
-            onClick={() => isPremium ? setMiniEmoticonMode(!miniEmoticonMode) : setShowPremiumPopup(true)}
-            className={clsx(
-              'flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border-2 font-medium transition-all',
-              miniEmoticonMode && isPremium
-                ? 'border-[#fee500] bg-[#fee500] text-gray-800 shadow-sm scale-105'
-                : 'border-transparent bg-gray-100 text-gray-500 hover:border-gray-300'
-            )}
-          >
-            <span>🤏</span>
-            미니 이모티콘 모드
-            {!isPremium && <span className="text-[9px] bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded-full ml-0.5">PRO</span>}
-          </button>
-        )}
-        {showPremiumPopup && (
-          <InfoModal title="⭐ 프리미엄 전용 기능" onClose={() => setShowPremiumPopup(false)}>
-            <p className="text-sm text-gray-600 mb-4">
-              카카오 미니 이모티콘 모드는 <span className="font-semibold text-gray-800">결제 후 사용</span>할 수 있습니다.
-            </p>
-            <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-2">
-              <p className="text-xs font-semibold text-amber-700 mb-3">프리미엄 혜택</p>
-              <ul className="space-y-2.5">
-                <li className="flex items-center gap-2 text-xs text-gray-700">
-                  <span>🤏</span> 카카오 미니 이모티콘 모드
-                </li>
-                <li className="flex items-center gap-2 text-xs text-gray-700">
-                  <span>☁️</span> 이모티콘 클라우드 저장
-                </li>
-                <li className="flex items-center gap-2 text-xs text-gray-700">
-                  <span>📱</span> QR 코드로 모바일 미리보기
-                </li>
-                <li className="flex items-center gap-2 text-xs text-gray-700">
-                  <span>🚫</span> 광고 제거
-                </li>
-              </ul>
-            </div>
-            <p className="text-xs text-gray-400 text-center">로그인 · 결제 서비스 오픈 준비 중입니다.</p>
-          </InfoModal>
-        )}
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import type { ChatMessage, EmoticonFile } from '../../types'
+import type { ChatMessage, EmoticonFile, ContentSegment } from '../../types'
 import type { ChatUIStyle } from '../../config/platforms'
 import { useActiveEmoticons } from '../../store/emoticonStore'
 
@@ -96,12 +96,12 @@ export function LiveChatView({ messages, chatUI, bgColor, textColor }: Props) {
               {chatUI.showAvatar ? (
                 // 아바타 모드: 유저명 아래 줄에 메시지
                 <div className="flex items-center gap-1 flex-wrap mt-0.5">
-                  <MessageContent msg={msg} emotes={emotes} chatUI={chatUI} textColor={textColor} />
+                  <MessageContent msg={msg} emotes={emotes} chatUI={chatUI} textColor={textColor} emoticons={emoticons} />
                 </div>
               ) : (
                 // 인라인 모드: 유저명 옆에 메시지
                 <span className="inline-flex items-center gap-1 flex-wrap">
-                  <MessageContent msg={msg} emotes={emotes} chatUI={chatUI} textColor={textColor} />
+                  <MessageContent msg={msg} emotes={emotes} chatUI={chatUI} textColor={textColor} emoticons={emoticons} />
                 </span>
               )}
             </div>
@@ -114,13 +114,47 @@ export function LiveChatView({ messages, chatUI, bgColor, textColor }: Props) {
 }
 
 function MessageContent({
-  msg, emotes, chatUI, textColor,
+  msg, emotes, chatUI, textColor, emoticons,
 }: {
   msg: ChatMessage
   emotes: (EmoticonFile | undefined)[]
   chatUI: ChatUIStyle
   textColor: string
+  emoticons: EmoticonFile[]
 }) {
+  const px = (chatUI.scaleSingleEmote && emotes.length === 1)
+    ? chatUI.emoticonDisplayPx
+    : chatUI.scaleSingleEmote
+      ? Math.round(chatUI.emoticonDisplayPx * 0.32)
+      : chatUI.emoticonDisplayPx
+
+  // segments가 있으면 순서 보존 렌더링
+  if (msg.segments && msg.segments.length > 0) {
+    return (
+      <>
+        {msg.segments.map((seg: ContentSegment, i: number) => {
+          if (seg.kind === 'text') {
+            return (
+              <span key={i} className="text-[13px] leading-5" style={{ color: textColor }}>
+                {seg.value}
+              </span>
+            )
+          }
+          const emote = emoticons.find(e => e.id === seg.emoticonId)
+          return emote ? (
+            <img
+              key={i}
+              src={emote.dataUrl}
+              alt={emote.name}
+              style={{ width: px, height: px, display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }}
+            />
+          ) : null
+        })}
+      </>
+    )
+  }
+
+  // 기존 렌더링 (segments 없는 경우)
   return (
     <>
       {(msg.type === 'text' || msg.type === 'mixed') && msg.text && (
@@ -128,31 +162,16 @@ function MessageContent({
           {msg.text}
         </span>
       )}
-      {emotes.map((emoticon, i) => {
-        const px = (chatUI.scaleSingleEmote && emotes.length === 1)
-          ? chatUI.emoticonDisplayPx
-          : chatUI.scaleSingleEmote
-            ? Math.round(chatUI.emoticonDisplayPx * 0.32)
-            : chatUI.emoticonDisplayPx
-        return emoticon ? (
-          <img
-            key={i}
-            src={emoticon.dataUrl}
-            alt={emoticon.name}
-            style={{
-              width: px,
-              height: px,
-              display: 'inline-block',
-              verticalAlign: 'middle',
-              objectFit: 'contain',
-            }}
-          />
-        ) : null
-      })}
+      {emotes.map((emoticon, i) => emoticon ? (
+        <img
+          key={i}
+          src={emoticon.dataUrl}
+          alt={emoticon.name}
+          style={{ width: px, height: px, display: 'inline-block', verticalAlign: 'middle', objectFit: 'contain' }}
+        />
+      ) : null)}
       {msg.type === 'emoticon' && emotes.length === 0 && (
-        <span className="text-[11px] opacity-30" style={{ color: textColor }}>
-          [이모티콘]
-        </span>
+        <span className="text-[11px] opacity-30" style={{ color: textColor }}>[이모티콘]</span>
       )}
     </>
   )

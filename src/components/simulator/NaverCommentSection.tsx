@@ -12,7 +12,9 @@ export interface NaverComment {
 
 interface Props {
   comments: NaverComment[]
+  myNickname?: string
   draftText: string
+  draftSegments?: ContentSegment[]
   onDraftTextChange: (text: string) => void
   onEmoticonSelect: (emoticonId: string) => void
   onSubmit: () => void
@@ -33,12 +35,14 @@ function getAvatarBg(nickname: string) {
 
 export function NaverCommentSection({
   comments,
+  myNickname = '내닉네임',
   draftText,
+  draftSegments = [],
   onDraftTextChange,
   onEmoticonSelect,
   onSubmit,
   accentColor = '#03c75a',
-  displayEmoticonPx = 32,
+  displayEmoticonPx = 80,
 }: Props) {
   const emoticons = useActiveEmoticons()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -46,29 +50,35 @@ export function NaverCommentSection({
   const resolveUrl = (id: string) => emoticons.find((e) => e.id === id)?.dataUrl ?? ''
 
   return (
-    <div className="border-t border-gray-100 mt-4">
+    <div className="border-t border-gray-100">
       {/* 헤더 */}
-      <div className="px-4 py-3 border-b border-gray-100">
-        <span className="text-sm font-semibold text-gray-700">댓글 {comments.length}개</span>
+      <div className="px-4 py-3">
+        <span className="text-sm font-bold text-gray-800">댓글 {comments.length}</span>
       </div>
 
       {/* 댓글 목록 */}
       {comments.length > 0 && (
-        <div className="divide-y divide-gray-50">
+        <div>
           {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3 px-4 py-3">
+            <div key={comment.id} className="flex gap-2.5 px-4 py-3 border-t border-gray-100">
+              {/* 아바타 */}
               <div
-                className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5"
+                className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
                 style={{ backgroundColor: getAvatarBg(comment.nickname) }}
               >
                 {comment.nickname[0]}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-semibold text-gray-700">{comment.nickname}</span>
-                  <span className="text-[10px] text-gray-400">{comment.timestamp}</span>
+                {/* 닉네임 + 뱃지 */}
+                <div className="flex items-center gap-1 mb-0.5">
+                  <span className="text-sm font-bold text-gray-800">{comment.nickname}</span>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="7" fill={accentColor} />
+                    <path d="M4 7l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
-                <div className="text-sm text-gray-700 leading-relaxed break-words">
+                {/* 댓글 내용 */}
+                <div className="text-sm text-gray-800 leading-relaxed break-words">
                   {comment.segments.map((seg, i) =>
                     seg.kind === 'text' ? (
                       <span key={i} className="whitespace-pre-wrap">{seg.value}</span>
@@ -77,11 +87,18 @@ export function NaverCommentSection({
                         key={i}
                         src={resolveUrl(seg.emoticonId)}
                         alt="이모티콘"
-                        className="inline-block align-middle mx-0.5"
+                        className="block mt-1"
                         style={{ width: displayEmoticonPx, height: displayEmoticonPx, objectFit: 'contain' }}
                       />
                     )
                   )}
+                </div>
+                {/* 날짜/시간 + 답글쓰기 */}
+                <div className="flex items-center gap-3 mt-1.5">
+                  <span className="text-[11px] text-gray-400">{comment.timestamp}</span>
+                  <button className="text-[11px] text-gray-400 hover:text-gray-600 transition-colors">
+                    답글쓰기
+                  </button>
                 </div>
               </div>
             </div>
@@ -89,43 +106,70 @@ export function NaverCommentSection({
         </div>
       )}
 
-      {/* 댓글 입력 */}
-      <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
-        <div className="flex gap-3">
-          <div
-            className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-1"
-            style={{ backgroundColor: accentColor }}
-          >
-            나
+      {/* 댓글 입력창 */}
+      <div className="border-t border-gray-200 bg-white">
+        {/* 닉네임 행 */}
+        <div className="px-4 pt-3 pb-1">
+          <span className="text-sm font-bold text-gray-800">{myNickname}</span>
+        </div>
+
+        {/* 드래프트 미리보기 (이모티콘 선택 시) */}
+        {draftSegments.length > 0 && (
+          <div className="px-4 pb-1 text-sm text-gray-800 leading-relaxed break-words">
+            {draftSegments.map((seg, i) =>
+              seg.kind === 'text' ? (
+                <span key={i} className="whitespace-pre-wrap">{seg.value}</span>
+              ) : (
+                <img
+                  key={i}
+                  src={resolveUrl(seg.emoticonId)}
+                  alt="이모티콘"
+                  className="inline-block align-middle mx-0.5"
+                  style={{ width: 32, height: 32, objectFit: 'contain' }}
+                />
+              )
+            )}
           </div>
-          <div className="flex-1">
-            <textarea
-              value={draftText}
-              onChange={(e) => onDraftTextChange(e.target.value)}
-              placeholder="댓글을 입력하세요..."
-              rows={2}
-              className="w-full px-3 py-2 text-sm text-gray-800 border border-gray-200 rounded resize-none outline-none placeholder-gray-400 bg-white focus:border-[#03c75a] transition-colors"
+        )}
+
+        {/* 텍스트 입력 */}
+        <div className="px-4">
+          <textarea
+            value={draftText}
+            onChange={(e) => onDraftTextChange(e.target.value)}
+            placeholder="댓글을 남겨보세요"
+            rows={1}
+            className="w-full text-sm text-gray-800 resize-none outline-none placeholder-gray-400 bg-transparent leading-relaxed"
+            style={{ minHeight: '24px' }}
+          />
+        </div>
+
+        {/* 하단 툴바 */}
+        <div className="flex items-center justify-between px-4 py-2 relative">
+          <div className="flex items-center gap-3">
+            {/* 카메라 아이콘 */}
+            <button className="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </button>
+            {/* 이모티콘 피커 */}
+            <EmoticonPicker
+              open={pickerOpen}
+              onToggle={() => setPickerOpen((v) => !v)}
+              onSelect={onEmoticonSelect}
+              accentColor={accentColor}
+              queueMode={false}
+              variant="naver"
             />
-            <div className="flex justify-end items-center gap-2 mt-1.5 relative">
-              <EmoticonPicker
-                open={pickerOpen}
-                onToggle={() => setPickerOpen((v) => !v)}
-                onSelect={(id) => {
-                  onEmoticonSelect(id)
-                  setPickerOpen(false)
-                }}
-                accentColor={accentColor}
-                queueMode={false}
-              />
-              <button
-                onClick={onSubmit}
-                className="text-xs font-semibold px-4 py-1.5 rounded text-white transition-colors"
-                style={{ backgroundColor: accentColor }}
-              >
-                등록
-              </button>
-            </div>
           </div>
+          <button
+            onClick={onSubmit}
+            className="text-sm font-semibold text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            등록
+          </button>
         </div>
       </div>
     </div>

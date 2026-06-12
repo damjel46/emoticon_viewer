@@ -170,15 +170,13 @@ export function MobileNaverCafeSimulator({ emoticons }: Props) {
                 <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100 bg-gray-50 relative">
                   <button className="px-2 py-0.5 text-xs font-bold text-gray-500 hover:bg-gray-200 rounded">B</button>
                   <button className="px-2 py-0.5 text-xs italic text-gray-500 hover:bg-gray-200 rounded">I</button>
-                  <div className="relative">
-                    <MobileEmoticonPickerTray
-                      emoticons={emoticons}
-                      open={postPickerOpen}
-                      onToggle={() => setPostPickerOpen((v) => !v)}
-                      onSelect={handleEmoticonInPost}
-                      accentColor={ACCENT}
-                    />
-                  </div>
+                  <MobileEmoticonPickerTray
+                    emoticons={emoticons}
+                    open={postPickerOpen}
+                    onToggle={() => setPostPickerOpen((v) => !v)}
+                    onSelect={handleEmoticonInPost}
+                    accentColor={ACCENT}
+                  />
                   <div className="flex-1" />
                   <button onClick={handleClearPost}
                     className="text-xs text-gray-400 hover:text-gray-600 px-2 py-0.5 rounded">초기화</button>

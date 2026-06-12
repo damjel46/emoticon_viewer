@@ -9,7 +9,7 @@ export function ChatInput() {
   const [text, setText] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
   const [queuedIds, setQueuedIds] = useState<string[]>([])
-  const { addMessage, currentSender, toggleSender, miniEmoticonMode } = useChatStore()
+  const { addMessage, currentSender, toggleSender, miniEmoticonMode, setMiniEmoticonMode } = useChatStore()
   const emoticons = useActiveEmoticons()
   const chatUI = usePlatformStore((s) => s.getConfig().chatUI)
   const accentColor = usePlatformStore((s) => s.getConfig().accentColor)
@@ -115,6 +115,8 @@ export function ChatInput() {
           onToggle={() => setPickerOpen((p) => !p)}
           accentColor={accentColor}
           queueMode={isQueueMode}
+          miniMode={miniEmoticonMode}
+          onMiniModeChange={setMiniEmoticonMode}
         />
 
         <button

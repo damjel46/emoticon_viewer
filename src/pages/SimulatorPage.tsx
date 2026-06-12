@@ -6,6 +6,7 @@ import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
 import { ChatInput } from '../components/simulator/ChatInput'
+import { SoopChatInput } from '../components/simulator/SoopChatInput'
 import { SpamButton } from '../components/simulator/SpamButton'
 import { NaverSubModeBar } from '../components/simulator/NaverSubModeBar'
 import { NaverCafeSimulator } from '../components/simulator/NaverCafeSimulator'
@@ -251,7 +252,7 @@ export function SimulatorPage() {
                 <ChatSimulator />
               </div>
               <SpamButton />
-              <ChatInput />
+              {activePlatform === 'soop' ? <SoopChatInput /> : <ChatInput />}
             </>
           )}
         </div>

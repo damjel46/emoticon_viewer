@@ -152,7 +152,7 @@ export const PLATFORMS: Record<PlatformId, PlatformConfig> = {
       otherBubbleColor: null,
       bubbleTextColor: '#141414',
       timestampColor: '#888888',
-      emoticonDisplayPx: 110,
+      emoticonDisplayPx: 26,
       accentColor: '#0545b1',
       showReadReceipt: false,
       showAvatar: false,
@@ -160,7 +160,6 @@ export const PLATFORMS: Record<PlatformId, PlatformConfig> = {
       myLabel: '나',
       otherLabel: '시청자',
       liveViewerCount: '12,847명 시청 중',
-      scaleSingleEmote: true,
     },
     grid: {
       defaultCount: 16,

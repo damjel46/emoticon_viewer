@@ -34,6 +34,9 @@ export function ChatBubble({ message, theme, chatUI }: Props) {
       .map((id) => emoticons.find((e) => e.id === id))
       .filter(Boolean) as typeof emoticons
 
+    // 1개일 때는 미디엄 사이즈, 여러 개일 때는 작게
+    const imgPx = miniEmotes.length === 1 ? miniPx : Math.round(miniPx * 0.53)
+
     return (
       <div className={clsx('flex items-end gap-1 mb-2', isMe ? 'flex-row-reverse' : 'flex-row')}>
         {!isMe && chatUI.showAvatar && (
@@ -54,7 +57,7 @@ export function ChatBubble({ message, theme, chatUI }: Props) {
                   key={i}
                   src={e.dataUrl}
                   alt={e.name}
-                  style={{ width: miniPx, height: miniPx, objectFit: 'contain' }}
+                  style={{ width: imgPx, height: imgPx, objectFit: 'contain' }}
                   className="drop-shadow-sm"
                 />
               ))}
