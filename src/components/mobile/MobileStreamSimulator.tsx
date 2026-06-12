@@ -83,18 +83,15 @@ export function MobileStreamSimulator({ emoticons, platformId }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [text, setText] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [viewerCounter, setViewerCounter] = useState(0)
+  const viewerCounter = useRef(0)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const addMessage = (msg: Omit<ChatMessage, 'id' | 'viewerSeed'>) => {
-    setViewerCounter((n) => {
-      const seed = n
-      setMessages((prev) => {
-        const next = [...prev, { ...msg, id: crypto.randomUUID(), viewerSeed: seed }]
-        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
-        return next
-      })
-      return n + 1
+    const seed = viewerCounter.current++
+    setMessages((prev) => {
+      const next = [...prev, { ...msg, id: crypto.randomUUID(), viewerSeed: seed }]
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 0)
+      return next
     })
   }
 
