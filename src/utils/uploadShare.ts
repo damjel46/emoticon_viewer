@@ -10,29 +10,25 @@ interface UploadPayload {
 }
 
 export async function uploadShare(payload: UploadPayload): Promise<string> {
-  const id = crypto.randomUUID()
-  const json = JSON.stringify(payload)
-  const blob = new Blob([json], { type: 'application/json' })
-
-  const { error } = await supabase.storage
+  const { data, error } = await supabase
     .from('shares')
-    .upload(`${id}.json`, blob, { contentType: 'application/json', upsert: false })
+    .insert({ payload })
+    .select('id')
+    .single()
 
-  if (error) throw new Error(error.message)
+  if (error || !data) throw new Error(error?.message ?? 'Upload failed')
 
-  return `${window.location.origin}/mobile#${id}`
+  return `${window.location.origin}/mobile#${data.id}`
 }
 
 export async function fetchShare(id: string): Promise<UploadPayload | null> {
-  const { data, error } = await supabase.storage
+  const { data, error } = await supabase
     .from('shares')
-    .download(`${id}.json`)
+    .select('payload, created_at')
+    .eq('id', id)
+    .single()
 
   if (error || !data) return null
 
-  try {
-    return JSON.parse(await data.text()) as UploadPayload
-  } catch {
-    return null
-  }
+  return data.payload as UploadPayload
 }
