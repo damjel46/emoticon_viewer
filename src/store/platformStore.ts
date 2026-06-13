@@ -20,10 +20,12 @@ export const usePlatformStore = create<PlatformState>()(
       setNaverSubMode: (mode) => set({ naverSubMode: mode }),
       setPlatform: (id) => {
         set({ activePlatform: id })
-        // sync themes into themeStore — lazy import to avoid circular dep at module load
         import('./themeStore').then(({ useThemeStore }) => {
           const config = PLATFORMS[id]
           useThemeStore.getState().resetForPlatform(config.themes, config.defaultTheme)
+        })
+        import('./chatStore').then(({ useChatStore }) => {
+          useChatStore.getState().clearMessages()
         })
       },
       getConfig: () => PLATFORMS[get().activePlatform],
