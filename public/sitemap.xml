@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://emoticonviewer.site/</loc>
+    <loc>http://www.emoticonviewer.site/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://emoticonviewer.site/grid</loc>
+    <loc>http://www.emoticonviewer.site/grid</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emoticonviewer.site/anim</loc>
+    <loc>http://www.emoticonviewer.site/anim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emoticonviewer.site/qr</loc>
+    <loc>http://www.emoticonviewer.site/qr</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
