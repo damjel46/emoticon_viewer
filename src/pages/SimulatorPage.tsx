@@ -10,6 +10,8 @@ import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
 import { ChatInput } from '../components/simulator/ChatInput'
 import { SoopChatInput } from '../components/simulator/SoopChatInput'
+import { YoutubeChatInput } from '../components/simulator/YoutubeChatInput'
+import { TwitchChatInput } from '../components/simulator/TwitchChatInput'
 import { SpamButton } from '../components/simulator/SpamButton'
 
 import { NaverCafeSimulator } from '../components/simulator/NaverCafeSimulator'
@@ -321,7 +323,10 @@ export function SimulatorPage() {
                     <ChatSimulator />
                   </div>
                   <SpamButton />
-                  {activePlatform === 'soop' ? <SoopChatInput /> : <ChatInput />}
+                  {activePlatform === 'soop' ? <SoopChatInput />
+                    : activePlatform === 'youtube' ? <YoutubeChatInput />
+                    : activePlatform === 'twitch' ? <TwitchChatInput />
+                    : <ChatInput />}
                 </>
               )}
             </div>
