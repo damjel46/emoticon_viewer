@@ -5,7 +5,7 @@ export function Footer() {
         <p className="font-semibold text-gray-500 mb-1">노잇</p>
         <p>사업자등록번호: 264-10-03099 &nbsp;|&nbsp; 대표자: 박노익</p>
         <p>주소: 광주광역시 동구 지호로 66, 2층 201호(지산동)</p>
-        <p>전화: 010-9990-6110 &nbsp;|&nbsp; 이메일: damjel46@gmail.com</p>
+        <p>전화: 010-9990-6110 &nbsp;|&nbsp; 이메일: noit0411@gmail.com</p>
         <p className="mt-1">
           <a href="/terms" className="underline hover:text-gray-600">이용약관</a>
           &nbsp;&nbsp;
