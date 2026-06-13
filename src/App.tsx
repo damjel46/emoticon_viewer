@@ -8,6 +8,11 @@ import { GridPage } from './pages/GridPage'
 import { AnimationPage } from './pages/AnimationPage'
 import { QRPage } from './pages/QRPage'
 import { MobilePreviewPage } from './pages/MobilePreviewPage'
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
+import { PaymentFailPage } from './pages/PaymentFailPage'
+import { PaymentCancelPage } from './pages/PaymentCancelPage'
+import { TermsPage } from './pages/TermsPage'
+import { Footer } from './components/shared/Footer'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 600)
@@ -33,6 +38,7 @@ function AppShell() {
         <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
         <main className="flex-1 overflow-hidden flex flex-col bg-white">
           <Outlet />
+          <Footer />
         </main>
       </div>
     </div>
@@ -50,6 +56,10 @@ export default function App() {
         <Route path=":platformId" element={<PlatformPage />} />
       </Route>
       <Route path="/mobile" element={<MobilePreviewPage />} />
+      <Route path="/payment/success" element={<PaymentSuccessPage />} />
+      <Route path="/payment/fail" element={<PaymentFailPage />} />
+      <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+      <Route path="/terms" element={<TermsPage />} />
     </Routes>
   )
 }
