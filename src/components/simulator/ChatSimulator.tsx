@@ -17,10 +17,11 @@ export function ChatSimulator() {
   const messages = chatUI.bubbleMode === 'bubbles'
     ? allMessages.filter((m) => !m.emoticonIds || m.emoticonIds.length <= 1 || m.isMini)
     : allMessages
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = containerRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [messages.length])
 
   const effectiveBg = theme.bgColor
@@ -32,7 +33,7 @@ export function ChatSimulator() {
       {chatUI.bubbleMode === 'inline-flow' ? (
         <LiveChatView messages={messages} chatUI={chatUI} bgColor={effectiveBg} textColor={theme.textColor} />
       ) : (
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0.5">
+        <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-0.5">
           {messages.length === 0 && (
             <div className="flex items-center justify-center h-full">
               <p className="text-sm" style={{ color: theme.timestampColor }}>
@@ -43,7 +44,7 @@ export function ChatSimulator() {
           {messages.map((msg) => (
             <ChatBubble key={msg.id} message={msg} theme={theme} chatUI={chatUI} />
           ))}
-          <div ref={bottomRef} />
+          <div />
         </div>
       )}
     </div>
