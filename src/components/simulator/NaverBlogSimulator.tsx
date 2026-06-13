@@ -390,19 +390,21 @@ export function NaverBlogSimulator() {
       />
 
       {/* 리액션 바 */}
-      <div className="bg-white border-t border-gray-200">
-        <div className="flex items-center gap-4 px-12 py-3 text-sm text-gray-500 mx-auto" style={{ maxWidth: '860px' }}>
-          <button className="flex items-center gap-1.5 hover:text-gray-700 transition-colors">
-            <span>♥</span><span>공감 {likes}</span>
-          </button>
-          <span className="text-gray-200">|</span>
-          <span className="flex items-center gap-1.5">
-            <span>💬</span><span>댓글 {comments.length}</span>
-          </span>
-          <span className="text-gray-200">|</span>
-          <button className="flex items-center gap-1.5 hover:text-gray-700 transition-colors">
-            <span>↗</span><span>공유</span>
-          </button>
+      <div className="bg-gray-100">
+        <div className="mx-auto bg-white border-t border-gray-200 px-12 py-3" style={{ maxWidth: '860px' }}>
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <button className="flex items-center gap-1.5 hover:text-gray-700 transition-colors">
+              <span>♥</span><span>공감 {likes}</span>
+            </button>
+            <span className="text-gray-200">|</span>
+            <span className="flex items-center gap-1.5">
+              <span>💬</span><span>댓글 {comments.length}</span>
+            </span>
+            <span className="text-gray-200">|</span>
+            <button className="flex items-center gap-1.5 hover:text-gray-700 transition-colors">
+              <span>↗</span><span>공유</span>
+            </button>
+          </div>
         </div>
       </div>
 

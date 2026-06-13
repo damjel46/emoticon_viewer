@@ -3,6 +3,7 @@ import { useActiveEmoticons } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
 import { DropZone } from '../components/grid/DropZone'
 import { EmoticonGrid } from '../components/grid/EmoticonGrid'
+import { SetTabs } from '../components/grid/SetTabs'
 import { ShopPreview } from '../components/grid/ShopPreview'
 import { KeyboardTabView } from '../components/grid/KeyboardTabView'
 import { Modal } from '../components/shared/Modal'
@@ -50,6 +51,7 @@ export function GridPage() {
       </div>
 
       <div className="px-6 py-5 flex flex-col gap-5">
+        <SetTabs />
         <DropZone />
 
         {/* 세트 크기 토글 — countOptions가 있을 때만 표시 */}

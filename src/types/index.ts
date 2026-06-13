@@ -3,6 +3,13 @@ export interface SpecWarning {
   message: string;
 }
 
+export interface EmoticonSet {
+  id: string
+  name: string
+  emoticons: EmoticonFile[]
+  thumbnailId?: string
+}
+
 export interface EmoticonFile {
   id: string;
   name: string;

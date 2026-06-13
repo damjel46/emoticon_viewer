@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { useAuthStore } from '../../store/authStore'
+import { useProfileStore } from '../../store/profileStore'
 import { usePlatformStore } from '../../store/platformStore'
 import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
+import { ProfileModal } from '../auth/ProfileModal'
 import { PlatformLogo } from './PlatformLogo'
 
 const NAV_ITEMS = [
-  { to: '/', label: '시뮬레이터', icon: '💬' },
   { to: '/grid', label: '업로드', icon: '📂' },
   { to: '/anim', label: '애니메이션', icon: '🎬' },
-  { to: '/qr', label: 'QR 연동', icon: '📱' },
+  { to: '/qr', label: 'QR 연동', icon: '📱', beta: true },
 ]
 
 interface Props {
@@ -22,12 +23,15 @@ interface Props {
 export function Sidebar({ collapsed, onToggle }: Props) {
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
-  const signOut = useAuthStore((s) => s.signOut)
+  const displayName = useProfileStore((s) => s.displayName)
   const [showLogin, setShowLogin] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
+  const navigate = useNavigate()
+  const location = useLocation()
   const activePlatform = usePlatformStore((s) => s.activePlatform)
-  const setPlatform = usePlatformStore((s) => s.setPlatform)
   const platformConfig = usePlatformStore((s) => s.getConfig())
+  const isSimulatorActive = PLATFORM_ORDER.some((id) => location.pathname === `/${id}`)
 
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
   const accentColor = platformConfig.accentColor
@@ -69,7 +73,7 @@ export function Sidebar({ collapsed, onToggle }: Props) {
               return (
                 <button
                   key={id}
-                  onClick={() => setPlatform(id)}
+                  onClick={() => navigate(`/${id}`)}
                   title={p.nameKo}
                   className={clsx(
                     'w-8 h-8 flex items-center justify-center rounded-lg text-base transition-all',
@@ -92,11 +96,27 @@ export function Sidebar({ collapsed, onToggle }: Props) {
 
         {/* 네비게이션 */}
         <nav className="flex flex-col gap-1 flex-1">
+          {/* 시뮬레이터 - 현재 플랫폼 URL로 연결 */}
+          <Link
+            to={`/${activePlatform}`}
+            title="시뮬레이터"
+            className={clsx(
+              'flex items-center rounded-xl text-sm font-medium transition-colors',
+              collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
+              isSimulatorActive
+                ? 'text-[#1a1a1a]'
+                : 'text-white/70 hover:bg-white/10 hover:text-white'
+            )}
+            style={isSimulatorActive ? { backgroundColor: accentColor } : undefined}
+          >
+            <span className="text-base">💬</span>
+            {!collapsed && <span className="flex-1">시뮬레이터</span>}
+          </Link>
+
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
               title={item.label}
               className={({ isActive }) =>
                 clsx(
@@ -112,7 +132,16 @@ export function Sidebar({ collapsed, onToggle }: Props) {
               }
             >
               <span className="text-base">{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && (
+                <>
+                  <span className="flex-1">{item.label}</span>
+                  {item.beta && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/15 text-white/60">
+                      BETA
+                    </span>
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -120,7 +149,14 @@ export function Sidebar({ collapsed, onToggle }: Props) {
         {/* 유저 영역 */}
         <div className={clsx('mt-4 border-t border-white/10 pt-3', collapsed ? 'flex justify-center' : '')}>
           {user ? (
-            <div className={clsx('flex items-center', collapsed ? 'justify-center' : 'gap-2 px-2')}>
+            <button
+              onClick={() => setShowProfile(true)}
+              title="프로필 설정"
+              className={clsx(
+                'flex items-center w-full rounded-xl transition-colors hover:bg-white/10',
+                collapsed ? 'justify-center p-1.5' : 'gap-2 px-2 py-1.5'
+              )}
+            >
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
                 style={{ backgroundColor: accentColor, color: '#1a1a1a' }}
@@ -128,23 +164,22 @@ export function Sidebar({ collapsed, onToggle }: Props) {
                 {avatarLetter}
               </div>
               {!collapsed && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-xs font-medium truncate">{user.email}</p>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-white text-xs font-medium truncate">
+                    {displayName || user.email}
+                  </p>
                   {profile?.is_premium && (
                     <p className="text-[10px]" style={{ color: accentColor }}>⭐ 프리미엄</p>
                   )}
                 </div>
               )}
               {!collapsed && (
-                <button
-                  onClick={signOut}
-                  className="text-white/40 hover:text-white/80 text-[10px] flex-shrink-0"
-                  title="로그아웃"
-                >
-                  나가기
-                </button>
+                <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/15 text-white/60">BETA</span>
+                  <span className="text-white/30 text-[10px]">✏️</span>
+                </div>
               )}
-            </div>
+            </button>
           ) : (
             <button
               onClick={() => setShowLogin(true)}
@@ -155,7 +190,14 @@ export function Sidebar({ collapsed, onToggle }: Props) {
               )}
             >
               <span className="text-base">👤</span>
-              {!collapsed && <span>로그인</span>}
+              {!collapsed && (
+                <>
+                  <span className="flex-1">로그인</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/15 text-white/60">
+                    BETA
+                  </span>
+                </>
+              )}
             </button>
           )}
         </div>
@@ -174,6 +216,7 @@ export function Sidebar({ collapsed, onToggle }: Props) {
       </aside>
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </>
   )
 }

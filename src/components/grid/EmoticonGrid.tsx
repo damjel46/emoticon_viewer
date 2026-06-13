@@ -14,17 +14,19 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useEmoticonStore, useActiveEmoticons } from '../../store/emoticonStore'
+import { useEmoticonStore, useActiveEmoticons, useActiveThumbnailId } from '../../store/emoticonStore'
 import type { EmoticonFile } from '../../types'
 import clsx from 'clsx'
 
 interface SortableItemProps {
   emoticon: EmoticonFile
   index: number
+  isThumbnail: boolean
 }
 
-function SortableItem({ emoticon, index }: SortableItemProps) {
+function SortableItem({ emoticon, index, isThumbnail }: SortableItemProps) {
   const removeEmoticon = useEmoticonStore((s) => s.removeEmoticon)
+  const setThumbnail = useEmoticonStore((s) => s.setThumbnail)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: emoticon.id,
   })
@@ -37,7 +39,10 @@ function SortableItem({ emoticon, index }: SortableItemProps) {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div className="relative group bg-white rounded-xl border border-gray-100 overflow-hidden aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-grab active:cursor-grabbing">
+      <div className={clsx(
+        'relative group bg-white rounded-xl border overflow-hidden aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-grab active:cursor-grabbing',
+        isThumbnail ? 'border-yellow-400 ring-1 ring-yellow-300' : 'border-gray-100'
+      )}>
         <img
           src={emoticon.dataUrl}
           alt={emoticon.name}
@@ -47,6 +52,12 @@ function SortableItem({ emoticon, index }: SortableItemProps) {
         <span className="absolute top-1 left-1 bg-black/40 text-white text-[9px] px-1 rounded">
           {index + 1}
         </span>
+        {/* 대표 이미지 배지 */}
+        {isThumbnail && (
+          <span className="absolute bottom-1 left-1 bg-yellow-400 text-[8px] text-white px-1 rounded font-bold">
+            대표
+          </span>
+        )}
         {hasWarnings && (
           <span
             className="absolute top-1 right-1 bg-amber-400 text-[9px] px-1 rounded cursor-help"
@@ -54,6 +65,17 @@ function SortableItem({ emoticon, index }: SortableItemProps) {
           >
             ⚠
           </span>
+        )}
+        {/* 대표 이미지 설정 버튼 */}
+        {!isThumbnail && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setThumbnail(emoticon.id) }}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute bottom-1 left-1 bg-black/50 text-yellow-300 text-[9px] w-4 h-4 rounded-full items-center justify-center hidden group-hover:flex hover:bg-black/70"
+            title="대표 이미지로 설정"
+          >
+            ★
+          </button>
         )}
         <button
           onClick={(e) => { e.stopPropagation(); removeEmoticon(emoticon.id) }}
@@ -76,6 +98,7 @@ interface Props {
 
 export function EmoticonGrid({ columns = 6 }: Props) {
   const emoticons = useActiveEmoticons()
+  const thumbnailId = useActiveThumbnailId()
   const reorder = useEmoticonStore((s) => s.reorder)
 
   const sensors = useSensors(
@@ -100,7 +123,7 @@ export function EmoticonGrid({ columns = 6 }: Props) {
           style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
         >
           {emoticons.map((e, i) => (
-            <SortableItem key={e.id} emoticon={e} index={i} />
+            <SortableItem key={e.id} emoticon={e} index={i} isThumbnail={(thumbnailId ?? emoticons[0]?.id) === e.id} />
           ))}
         </div>
       </SortableContext>
