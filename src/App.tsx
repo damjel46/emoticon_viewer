@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Outlet } from 'react-router-dom'
 import { Sidebar } from './components/shared/Sidebar'
+import { MobileLanding } from './components/shared/MobileLanding'
 import { useAuthStore } from './store/authStore'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { GridPage } from './pages/GridPage'
@@ -8,10 +9,23 @@ import { AnimationPage } from './pages/AnimationPage'
 import { QRPage } from './pages/QRPage'
 import { MobilePreviewPage } from './pages/MobilePreviewPage'
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 600)
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 600)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return isMobile
+}
+
 function AppShell() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const init = useAuthStore((s) => s.init)
+  const isMobile = useIsMobile()
   useEffect(() => { init() }, [init])
+
+  if (isMobile) return <MobileLanding />
 
   return (
     <div className="flex h-screen overflow-hidden font-kakao">
