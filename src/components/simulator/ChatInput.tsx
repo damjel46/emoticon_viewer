@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { useChatStore } from '../../store/chatStore'
 import { useActiveEmoticons } from '../../store/emoticonStore'
@@ -13,6 +13,12 @@ export function ChatInput() {
   const emoticons = useActiveEmoticons()
   const chatUI = usePlatformStore((s) => s.getConfig().chatUI)
   const accentColor = usePlatformStore((s) => s.getConfig().accentColor)
+  const activePlatform = usePlatformStore((s) => s.activePlatform)
+
+  useEffect(() => {
+    setPickerOpen(false)
+    setQueuedIds([])
+  }, [activePlatform])
 
   // 큐 모드: inline-flow 플랫폼(숲 등) 또는 카카오 미니이모티콘 모드
   const isQueueMode = chatUI.bubbleMode === 'inline-flow' || miniEmoticonMode
