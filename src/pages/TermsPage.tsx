@@ -26,7 +26,7 @@ export function TermsPage() {
             <p>사업자등록번호: 264-10-03099</p>
             <p>사업장 주소: 광주광역시 동구 지호로 66, 2층 201호(지산동)</p>
             <p>전화: 010-9990-6110</p>
-            <p>이메일: damjel46@gmail.com</p>
+            <p>이메일: noit0411@gmail.com</p>
           </div>
         </section>
 
@@ -52,7 +52,7 @@ export function TermsPage() {
           <div className="text-sm text-gray-600 leading-relaxed space-y-2">
             <p>① 결제 완료 후 7일 이내, 서비스를 이용하지 않은 경우 전액 환불이 가능합니다.</p>
             <p>② 프리미엄 기능(저장 기능)을 1회 이상 사용한 경우 환불이 제한될 수 있습니다.</p>
-            <p>③ 환불 요청은 이메일(damjel46@gmail.com)로 접수 후 3영업일 이내 처리됩니다.</p>
+            <p>③ 환불 요청은 이메일(noit0411@gmail.com)로 접수 후 3영업일 이내 처리됩니다.</p>
             <p>④ 환불 시 결제 수단과 동일한 방법으로 환불되며, 카드사 정책에 따라 영업일 기준 3~5일 소요될 수 있습니다.</p>
           </div>
         </section>
