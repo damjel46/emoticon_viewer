@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { useAuthStore } from '../../store/authStore'
 import { useProfileStore } from '../../store/profileStore'
@@ -10,7 +10,6 @@ import { ProfileModal } from '../auth/ProfileModal'
 import { PlatformLogo } from './PlatformLogo'
 
 const NAV_ITEMS = [
-  { to: '/', label: '시뮬레이터', icon: '💬' },
   { to: '/grid', label: '업로드', icon: '📂' },
   { to: '/anim', label: '애니메이션', icon: '🎬' },
   { to: '/qr', label: 'QR 연동', icon: '📱', beta: true },
@@ -28,9 +27,11 @@ export function Sidebar({ collapsed, onToggle }: Props) {
   const [showLogin, setShowLogin] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
+  const navigate = useNavigate()
+  const location = useLocation()
   const activePlatform = usePlatformStore((s) => s.activePlatform)
-  const setPlatform = usePlatformStore((s) => s.setPlatform)
   const platformConfig = usePlatformStore((s) => s.getConfig())
+  const isSimulatorActive = PLATFORM_ORDER.some((id) => location.pathname === `/${id}`)
 
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
   const accentColor = platformConfig.accentColor
@@ -72,7 +73,7 @@ export function Sidebar({ collapsed, onToggle }: Props) {
               return (
                 <button
                   key={id}
-                  onClick={() => setPlatform(id)}
+                  onClick={() => navigate(`/${id}`)}
                   title={p.nameKo}
                   className={clsx(
                     'w-8 h-8 flex items-center justify-center rounded-lg text-base transition-all',
@@ -95,11 +96,27 @@ export function Sidebar({ collapsed, onToggle }: Props) {
 
         {/* 네비게이션 */}
         <nav className="flex flex-col gap-1 flex-1">
+          {/* 시뮬레이터 - 현재 플랫폼 URL로 연결 */}
+          <Link
+            to={`/${activePlatform}`}
+            title="시뮬레이터"
+            className={clsx(
+              'flex items-center rounded-xl text-sm font-medium transition-colors',
+              collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
+              isSimulatorActive
+                ? 'text-[#1a1a1a]'
+                : 'text-white/70 hover:bg-white/10 hover:text-white'
+            )}
+            style={isSimulatorActive ? { backgroundColor: accentColor } : undefined}
+          >
+            <span className="text-base">💬</span>
+            {!collapsed && <span className="flex-1">시뮬레이터</span>}
+          </Link>
+
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
               title={item.label}
               className={({ isActive }) =>
                 clsx(
