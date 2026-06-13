@@ -11,7 +11,7 @@ import { ChatSimulator } from '../components/simulator/ChatSimulator'
 import { ChatInput } from '../components/simulator/ChatInput'
 import { SoopChatInput } from '../components/simulator/SoopChatInput'
 import { SpamButton } from '../components/simulator/SpamButton'
-import { NaverSubModeBar } from '../components/simulator/NaverSubModeBar'
+
 import { NaverCafeSimulator } from '../components/simulator/NaverCafeSimulator'
 import { NaverBlogSimulator } from '../components/simulator/NaverBlogSimulator'
 import type { PlatformId } from '../config/platforms'
@@ -179,7 +179,7 @@ export function SimulatorPage() {
   const user = useAuthStore((s) => s.user)
   const displayName = useProfileStore((s) => s.displayName)
   const creatorName = displayName || (user?.email?.split('@')[0] ?? '나의 크리에이터')
-  const count = activeEmoticons.length
+
   const [panelOpen, setPanelOpen] = useState(false)
   const [ogqOpen, setOgqOpen] = useState(false)
   const platformConfig = usePlatformStore((s) => s.getConfig())
