@@ -49,6 +49,13 @@ export function LoginModal({ onClose }: Props) {
     })
   }
 
+  const handleKakao = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'kakao',
+      options: { redirectTo: window.location.origin },
+    })
+  }
+
   const switchMode = (next: Mode) => {
     setMode(next)
     setError(null)
@@ -103,6 +110,17 @@ export function LoginModal({ onClose }: Props) {
                     ))}
                   </ul>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleKakao}
+                  className="w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl transition-colors text-sm mb-2"
+                  style={{ backgroundColor: '#FEE500', color: '#1a1a1a' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M9 1C4.582 1 1 3.806 1 7.273c0 2.21 1.377 4.154 3.45 5.29L3.6 15.7a.3.3 0 0 0 .44.328L8.05 13.5c.31.03.627.046.95.046 4.418 0 8-2.806 8-6.273C17 3.806 13.418 1 9 1z" fill="#1a1a1a"/>
+                  </svg>
+                  카카오로 계속하기
+                </button>
                 <button
                   type="button"
                   onClick={handleGoogle}

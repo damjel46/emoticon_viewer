@@ -8,6 +8,7 @@ import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
 import { ProfileModal } from '../auth/ProfileModal'
 import { PlatformLogo } from './PlatformLogo'
+import { useKakaoPay } from '../../hooks/useKakaoPay'
 
 declare global { interface Window { adsbygoogle: unknown[] } }
 
@@ -56,6 +57,15 @@ export function Sidebar({ collapsed, onToggle }: Props) {
   const activePlatform = usePlatformStore((s) => s.activePlatform)
   const platformConfig = usePlatformStore((s) => s.getConfig())
   const isSimulatorActive = PLATFORM_ORDER.some((id) => location.pathname === `/${id}`)
+
+  const { startPayment } = useKakaoPay()
+  const [payLoading, setPayLoading] = useState(false)
+
+  const handlePremium = async () => {
+    if (!user) { setShowLogin(true); return }
+    setPayLoading(true)
+    try { await startPayment(user.id) } catch { setPayLoading(false) }
+  }
 
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
   const accentColor = platformConfig.accentColor
@@ -175,6 +185,16 @@ export function Sidebar({ collapsed, onToggle }: Props) {
 
         {/* 유저 영역 */}
         <div className={clsx('mt-4 border-t border-white/10 pt-3', collapsed ? 'flex justify-center' : '')}>
+          {/* 프리미엄 버튼 - 로그인 버튼 위 */}
+          {!profile?.is_premium && !collapsed && (
+            <button
+              onClick={handlePremium}
+              disabled={payLoading}
+              className="mb-2 w-full rounded-xl py-2 text-xs font-medium transition-colors disabled:opacity-40 text-white/40 hover:text-white/70"
+            >
+              {payLoading ? '처리 중...' : '⭐ 프리미엄 4,900원'}
+            </button>
+          )}
           {user ? (
             <button
               onClick={() => setShowProfile(true)}
