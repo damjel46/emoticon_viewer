@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { useAuthStore } from '../../store/authStore'
@@ -8,6 +8,30 @@ import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
 import { ProfileModal } from '../auth/ProfileModal'
 import { PlatformLogo } from './PlatformLogo'
+
+declare global { interface Window { adsbygoogle: unknown[] } }
+
+function SidebarAd() {
+  const ref = useRef<HTMLModElement>(null)
+  useEffect(() => {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({})
+    } catch {}
+  }, [])
+  return (
+    <div className="mx-1 mb-3">
+      <ins
+        ref={ref}
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client="ca-pub-5497677824149260"
+        data-ad-slot="6490827669"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
+  )
+}
 
 const NAV_ITEMS = [
   { to: '/grid', label: '업로드', icon: '📂' },
@@ -145,6 +169,9 @@ export function Sidebar({ collapsed, onToggle }: Props) {
             </NavLink>
           ))}
         </nav>
+
+        {/* 광고 */}
+        {!collapsed && <SidebarAd />}
 
         {/* 유저 영역 */}
         <div className={clsx('mt-4 border-t border-white/10 pt-3', collapsed ? 'flex justify-center' : '')}>
