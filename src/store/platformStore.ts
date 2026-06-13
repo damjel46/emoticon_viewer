@@ -26,6 +26,7 @@ export const usePlatformStore = create<PlatformState>()(
         })
         import('./chatStore').then(({ useChatStore }) => {
           useChatStore.getState().clearMessages()
+          if (id !== 'kakao') useChatStore.getState().setMiniEmoticonMode(false)
         })
       },
       getConfig: () => PLATFORMS[get().activePlatform],

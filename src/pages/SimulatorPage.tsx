@@ -322,7 +322,7 @@ export function SimulatorPage() {
                   <div className="flex-1 overflow-hidden">
                     <ChatSimulator />
                   </div>
-                  <SpamButton />
+                  {activePlatform !== 'youtube' && activePlatform !== 'twitch' && <SpamButton />}
                   {activePlatform === 'soop' ? <SoopChatInput />
                     : activePlatform === 'youtube' ? <YoutubeChatInput />
                     : activePlatform === 'twitch' ? <TwitchChatInput />

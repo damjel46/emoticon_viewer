@@ -76,9 +76,12 @@ export function EmoticonPicker({
     if (miniMode !== undefined) setKakaoTab(miniMode ? 'mini' : 'emoticon')
   }, [miniMode])
 
-  // reset drag position when picker closes
+  // reset drag position and cleanup listeners when picker closes
   useEffect(() => {
-    if (!open) setDragPos(null)
+    if (!open) {
+      setDragPos(null)
+      dragging.current = null
+    }
   }, [open])
 
   const isDisabled = emoticons.length === 0
@@ -412,7 +415,10 @@ export function EmoticonPicker({
             )}
             title="이모티콘"
           >
-            <img src={emoticons[0].dataUrl} alt="팩" className="w-6 h-6 object-contain rounded" />
+            {emoticons.length > 0
+              ? <img src={emoticons[0].dataUrl} alt="팩" className="w-6 h-6 object-contain rounded" />
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="10" r="0.5" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="0.5" fill="currentColor" stroke="none"/><path d="M8.5 14.5c1 1.5 5.5 1.5 7 0"/></svg>
+            }
             {naverTab === 'all' && (
               <span
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full"
