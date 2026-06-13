@@ -1,5 +1,8 @@
-import { useRef, useState } from 'react'
-import { useEmoticonStore, useActiveEmoticons } from '../store/emoticonStore'
+import { useRef, useState, useEffect } from 'react'
+import { useEmoticonStore, useActiveEmoticons, useActiveThumbnailId, useActiveSetName } from '../store/emoticonStore'
+import { useAuthStore } from '../store/authStore'
+import { useProfileStore } from '../store/profileStore'
+import { OGQStorePreview, KakaoStorePreview } from '../components/grid/ShopPreview'
 import { usePlatformStore } from '../store/platformStore'
 import { useChatStore } from '../store/chatStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
@@ -170,10 +173,19 @@ function getPlatformHelp(platformId: PlatformId, naverSubMode: NaverSubMode): Pl
 export function SimulatorPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
-  const count = useActiveEmoticons().length
+  const activeEmoticons = useActiveEmoticons()
+  const thumbnailId = useActiveThumbnailId()
+  const activeSetName = useActiveSetName()
+  const user = useAuthStore((s) => s.user)
+  const displayName = useProfileStore((s) => s.displayName)
+  const creatorName = displayName || (user?.email?.split('@')[0] ?? '나의 크리에이터')
+  const count = activeEmoticons.length
   const [panelOpen, setPanelOpen] = useState(false)
+  const [ogqOpen, setOgqOpen] = useState(false)
   const platformConfig = usePlatformStore((s) => s.getConfig())
   const activePlatform = usePlatformStore((s) => s.activePlatform)
+
+  useEffect(() => { setOgqOpen(false); setPanelOpen(false) }, [activePlatform])
   const naverSubMode = usePlatformStore((s) => s.naverSubMode ?? 'chzzk')
   const miniEmoticonMode = useChatStore((s) => s.miniEmoticonMode)
   const activeSpec = miniEmoticonMode && platformConfig.miniSpec
@@ -194,23 +206,78 @@ export function SimulatorPage() {
   return (
     <div className="flex flex-col h-full">
       {/* 헤더 */}
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-gray-800">채팅 시뮬레이터</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
-            {platformConfig.nameKo} 채팅 화면에서 이모티콘을 실시간 테스트하세요
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {count > 0 && (
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-              이모티콘 {count}종 로드됨
-            </span>
+      <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between gap-4 flex-shrink-0">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="flex-shrink-0">
+            <h1 className="text-lg font-bold text-gray-800">채팅 시뮬레이터</h1>
+            <p className="text-xs text-gray-400">
+              {platformConfig.nameKo} 화면에서 이모티콘을 실시간 테스트하세요
+            </p>
+          </div>
+
+          {/* 네이버 서브모드 탭 (헤더 인라인) */}
+          {activePlatform === 'ogq' && (
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+              {(['chzzk', 'blog', 'cafe'] as const).map((mode) => {
+                const labels = { chzzk: '치지직', blog: '블로그', cafe: '카페' }
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => usePlatformStore.getState().setNaverSubMode(mode)}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                    style={naverSubMode === mode
+                      ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+                      : { color: '#6b7280' }}
+                  >
+                    {labels[mode]}
+                  </button>
+                )
+              })}
+            </div>
           )}
+
+          {/* 카카오 스토어 탭 */}
+          {activePlatform === 'kakao' && (
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+              {([['chat', '💬 채팅'], ['store', '🛒 이모티콘 스토어']] as const).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  onClick={() => { setOgqOpen(mode === 'store'); setPanelOpen(false) }}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                  style={(mode === 'store') === ogqOpen
+                    ? { backgroundColor: '#fff', color: '#3c1e1e', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+                    : { color: '#6b7280' }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* SOOP OGQ 탭 */}
+          {activePlatform === 'soop' && (
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+              {([['chat', '💬 채팅'], ['ogq', '🛍️ OGQ 스토어']] as const).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  onClick={() => { setOgqOpen(mode === 'ogq'); setPanelOpen(false) }}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                  style={(mode === 'ogq') === ogqOpen
+                    ? { backgroundColor: '#fff', color: '#0545b1', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+                    : { color: '#6b7280' }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 flex-shrink-0">
+
           <button
-            onClick={() => setPanelOpen((v) => !v)}
+            onClick={() => { setPanelOpen((v) => !v); setOgqOpen(false) }}
             className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
-            title="사용 방법"
           >
             {panelOpen ? '안내 닫기 ✕' : '사용 방법 ?'}
           </button>
@@ -221,75 +288,79 @@ export function SimulatorPage() {
           >
             이모티콘 업로드
           </button>
-          <input
-            ref={inputRef}
-            type="file"
-            multiple
-            accept={acceptAttr}
-            onChange={handleFiles}
-            className="hidden"
-          />
+          <input ref={inputRef} type="file" multiple accept={acceptAttr} onChange={handleFiles} className="hidden" />
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* 채팅 시뮬레이터 */}
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-gray-100">
-          {activePlatform === 'ogq' && <NaverSubModeBar />}
-
-          {activePlatform === 'ogq' && naverSubMode === 'cafe' ? (
-            <div className="flex-1 overflow-y-auto">
-              <NaverCafeSimulator />
-            </div>
-          ) : activePlatform === 'ogq' && naverSubMode === 'blog' ? (
-            <div className="flex-1 overflow-y-auto">
-              <NaverBlogSimulator />
-            </div>
-          ) : (
-            <>
-              <ThemeToolbar />
-              <div className="flex-1 overflow-hidden">
-                <ChatSimulator />
-              </div>
-              <SpamButton />
-              {activePlatform === 'soop' ? <SoopChatInput /> : <ChatInput />}
-            </>
-          )}
-        </div>
-
-        {/* 우측 안내 패널 (토글) */}
-        {panelOpen && (() => {
-          const help = getPlatformHelp(activePlatform, naverSubMode)
-          return (
-            <div className="w-64 flex-shrink-0 p-4 flex flex-col gap-4 bg-gray-50 overflow-y-auto border-l border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wide">사용 방법</h3>
-                <button onClick={() => setPanelOpen(false)} className="text-gray-400 hover:text-gray-600 text-sm">✕</button>
-              </div>
-              <ul className="space-y-2 text-xs text-gray-500">
-                {help.steps.map((step, i) => (
-                  <li key={i} className="flex gap-1.5">
-                    <span>{i + 1}.</span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ul>
-              {help.notes.map((note, i) =>
-                note.type === 'amber' ? (
-                  <div key={i} className="bg-amber-50 border border-amber-100 rounded-xl p-3">
-                    <p className="text-xs font-semibold text-amber-700 mb-1">{note.title}</p>
-                    <p className="text-[10px] text-amber-600 leading-relaxed">{note.body}</p>
+        {/* 카카오 이모티콘 스토어 */}
+        {activePlatform === 'kakao' && ogqOpen ? (
+          <div className="flex-1 overflow-y-auto bg-white">
+            <KakaoStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} creatorName={creatorName} />
+          </div>
+        ) : activePlatform === 'soop' && ogqOpen ? (
+          <div className="flex-1 overflow-y-auto bg-white">
+            <OGQStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} creatorName={creatorName} />
+          </div>
+        ) : (
+          <>
+            {/* 채팅 시뮬레이터 */}
+            <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-gray-100">
+              {activePlatform === 'ogq' && naverSubMode === 'cafe' ? (
+                <div className="flex-1 overflow-y-auto">
+                  <NaverCafeSimulator />
+                </div>
+              ) : activePlatform === 'ogq' && naverSubMode === 'blog' ? (
+                <div className="flex-1 overflow-y-auto">
+                  <NaverBlogSimulator />
+                </div>
+              ) : (
+                <>
+                  <ThemeToolbar />
+                  <div className="flex-1 overflow-hidden">
+                    <ChatSimulator />
                   </div>
-                ) : (
-                  <div key={i} className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                    <p className="text-xs font-semibold text-blue-700 mb-1">{note.title}</p>
-                    <p className="text-[10px] text-blue-600 leading-relaxed">{note.body}</p>
-                  </div>
-                )
+                  <SpamButton />
+                  {activePlatform === 'soop' ? <SoopChatInput /> : <ChatInput />}
+                </>
               )}
             </div>
-          )
-        })()}
+
+            {/* 우측 안내 패널 (토글) */}
+            {panelOpen && (() => {
+              const help = getPlatformHelp(activePlatform, naverSubMode)
+              return (
+                <div className="w-64 flex-shrink-0 p-4 flex flex-col gap-4 bg-gray-50 overflow-y-auto border-l border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wide">사용 방법</h3>
+                    <button onClick={() => setPanelOpen(false)} className="text-gray-400 hover:text-gray-600 text-sm">✕</button>
+                  </div>
+                  <ul className="space-y-2 text-xs text-gray-500">
+                    {help.steps.map((step, i) => (
+                      <li key={i} className="flex gap-1.5">
+                        <span>{i + 1}.</span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {help.notes.map((note, i) =>
+                    note.type === 'amber' ? (
+                      <div key={i} className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-amber-700 mb-1">{note.title}</p>
+                        <p className="text-[10px] text-amber-600 leading-relaxed">{note.body}</p>
+                      </div>
+                    ) : (
+                      <div key={i} className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-blue-700 mb-1">{note.title}</p>
+                        <p className="text-[10px] text-blue-600 leading-relaxed">{note.body}</p>
+                      </div>
+                    )
+                  )}
+                </div>
+              )
+            })()}
+          </>
+        )}
       </div>
     </div>
   )
