@@ -39,13 +39,15 @@ interface Props {
   accentColor?: string
   queueMode?: boolean
   label?: string
-  variant?: 'kakao' | 'naver'
+  variant?: 'kakao' | 'naver' | 'youtube'
   miniMode?: boolean
   onMiniModeChange?: (isMini: boolean) => void
+  packName?: string
 }
 
 type KakaoTab = 'emoticon' | 'mini'
 type NaverTab = 'recent' | 'all'
+type YouTubeTab = 'recent' | 'pack'
 
 export function EmoticonPicker({
   onSelect, open, onToggle,
@@ -55,10 +57,13 @@ export function EmoticonPicker({
   variant = 'kakao',
   miniMode,
   onMiniModeChange,
+  packName,
 }: Props) {
   const emoticons = useActiveEmoticons()
   const [kakaoTab, setKakaoTab] = useState<KakaoTab>('emoticon')
   const [naverTab, setNaverTab] = useState<NaverTab>('all')
+  const [youtubeTab, setYoutubeTab] = useState<YouTubeTab>('pack')
+  const [ytSearch, setYtSearch] = useState('')
   const [recentIds, setRecentIds] = useState<string[]>([])
 
   // drag state
@@ -257,6 +262,112 @@ export function EmoticonPicker({
               월 3,900원으로 미니 이모티콘까지 전부!
             </span>
             <span className="text-[11px] font-bold text-yellow-600 flex-shrink-0">구독하기</span>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // ── YouTube 피커 ─────────────────────────────────────────────
+  if (variant === 'youtube') {
+    const ytRecent = recentIds.map((id) => emoticons.find((e) => e.id === id)).filter(Boolean) as typeof emoticons
+    const ytDisplayed = youtubeTab === 'recent' ? ytRecent : emoticons
+    const ytFiltered = ytSearch.trim()
+      ? ytDisplayed.filter((e) => e.name.toLowerCase().includes(ytSearch.toLowerCase()))
+      : ytDisplayed
+
+    return (
+      <>
+        {triggerButton}
+        <div
+          className="absolute bottom-full right-0 z-20 flex flex-col overflow-hidden"
+          style={{ width: 360, borderRadius: 12, backgroundColor: '#1f1f1f', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
+        >
+          {/* 검색바 */}
+          <div className="px-3 pt-3 pb-2">
+            <div className="flex items-center gap-2 rounded-full px-3 py-1.5" style={{ backgroundColor: '#383838' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                value={ytSearch}
+                onChange={(e) => setYtSearch(e.target.value)}
+                placeholder="이모티콘 검색"
+                className="flex-1 bg-transparent text-xs outline-none"
+                style={{ color: '#e0e0e0' }}
+              />
+              {ytSearch && (
+                <button onClick={() => setYtSearch('')} className="text-gray-400 hover:text-gray-200 text-xs">✕</button>
+              )}
+            </div>
+          </div>
+
+          {/* 카테고리 탭 */}
+          <div className="flex items-center gap-0.5 px-2 pb-1 border-b" style={{ borderColor: '#383838' }}>
+            {/* 최근 탭 */}
+            <button
+              onClick={() => setYoutubeTab('recent')}
+              className="w-9 h-9 flex items-center justify-center rounded-lg transition-colors"
+              style={{ backgroundColor: youtubeTab === 'recent' ? '#383838' : 'transparent' }}
+              title="최근 사용"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={youtubeTab === 'recent' ? '#fff' : '#888'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+            {/* 팩 탭 — YouTube 로고 */}
+            <button
+              onClick={() => setYoutubeTab('pack')}
+              className="w-9 h-9 flex items-center justify-center rounded-lg transition-colors"
+              style={{ backgroundColor: youtubeTab === 'pack' ? '#383838' : 'transparent' }}
+              title="이모티콘 팩"
+            >
+              <svg width="18" height="13" viewBox="0 0 18 13" fill="none">
+                <rect width="18" height="13" rx="3" fill="#ff0000" />
+                <polygon points="7,3 14,6.5 7,10" fill="#fff" />
+              </svg>
+            </button>
+            {/* 장식 아이콘들 (비활성) */}
+            {[
+              <svg key="face" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>,
+              <svg key="gear" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+            ].map((icon, i) => (
+              <button key={i} className="w-9 h-9 flex items-center justify-center rounded-lg">
+                {icon}
+              </button>
+            ))}
+          </div>
+
+          {/* 팩 이름 헤더 */}
+          {!ytSearch && (
+            <div className="px-3 py-1.5">
+              <span className="text-[11px] font-medium" style={{ color: '#aaa' }}>
+                {youtubeTab === 'recent' ? '최근 사용' : (packName || '내 이모티콘')}
+              </span>
+            </div>
+          )}
+
+          {/* 이모티콘 그리드 */}
+          <div className="grid grid-cols-6 overflow-y-auto px-1 pb-2" style={{ maxHeight: 240 }}>
+            {ytFiltered.length === 0 ? (
+              <div className="col-span-6 flex items-center justify-center py-8 text-xs" style={{ color: '#666' }}>
+                {ytSearch ? '검색 결과 없음' : youtubeTab === 'recent' ? '최근 사용한 이모티콘 없음' : '이모티콘을 먼저 업로드하세요'}
+              </div>
+            ) : (
+              ytFiltered.map((e) => (
+                <button
+                  key={e.id}
+                  onClick={() => handleSelect(e.id)}
+                  className="flex items-center justify-center p-1 rounded-lg transition-colors"
+                  style={{ aspectRatio: '1' }}
+                  onMouseEnter={(ev) => (ev.currentTarget.style.backgroundColor = '#383838')}
+                  onMouseLeave={(ev) => (ev.currentTarget.style.backgroundColor = 'transparent')}
+                >
+                  <img src={e.dataUrl} alt={e.name} className="w-10 h-10 object-contain" />
+                </button>
+              ))
+            )}
           </div>
         </div>
       </>
