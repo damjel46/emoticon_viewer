@@ -395,6 +395,7 @@ export function OGQStorePreview({ emoticons, thumbnailId, setName, creatorName }
   const [selectedId, setSelectedId] = useState<string | null>(thumbnailId ?? emoticons[0]?.id ?? null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [hoverKey, setHoverKey] = useState(0)
+  const [darkMode, setDarkMode] = useState(false)
 
   const selected = emoticons.find((e) => e.id === selectedId) ?? (thumbnailId ? emoticons.find(e => e.id === thumbnailId) : null) ?? emoticons[0] ?? null
   const total = Math.max(emoticons.length, 16)
@@ -406,51 +407,64 @@ export function OGQStorePreview({ emoticons, thumbnailId, setName, creatorName }
   }
 
   return (
-    <div className="w-full bg-white rounded-xl overflow-hidden border border-gray-200">
-      {/* 상단 헤더 */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex gap-3 mb-3">
+    <div className="w-full bg-white">
+      {/* 상단 정보 */}
+      <div className="px-5 pt-5 pb-4">
+        <div className="flex gap-4 mb-5">
           {/* 썸네일 */}
-          <div className="relative w-20 h-20 flex-shrink-0 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+          <div className="w-32 h-32 flex-shrink-0 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden relative">
             {selected
-              ? <img src={selected.dataUrl} alt="대표" className="w-full h-full object-contain p-1" />
-              : <span className="text-2xl">🖼️</span>}
-            <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white/80 border border-gray-300 flex items-center justify-center">
-              <span className="text-[7px] text-gray-500">▶</span>
-            </div>
+              ? <img src={selected.dataUrl} alt="대표" className="w-full h-full object-contain p-1.5" />
+              : <span className="text-3xl">🖼️</span>}
+            <button className="absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 border border-gray-200 flex items-center justify-center">
+              <span className="text-gray-400 text-xs">♡</span>
+            </button>
           </div>
           {/* 정보 */}
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-gray-900 text-sm leading-tight mb-0.5">{setName ?? '나의 이모티콘 세트'}</p>
-            <p className="text-xs text-gray-400 mb-0.5">{creatorName ?? '나의 크리에이터'}</p>
-            <p className="text-xs text-gray-300 mb-1">움직이는 이모티콘</p>
-            <p className="font-bold text-gray-900 text-sm">3,000원</p>
+          <div className="flex-1 min-w-0 pt-1">
+            <p className="font-bold text-gray-900 text-base leading-snug mb-1">{setName ?? '나의 이모티콘 세트'}</p>
+            <p className="text-xs text-gray-500 mb-0.5">{creatorName ?? '나의 크리에이터'}</p>
+            <p className="text-xs text-gray-400 mb-3">움직이는 이모티콘</p>
+            <p className="font-bold text-gray-900 text-xl">3,000원</p>
           </div>
         </div>
-        {/* 구매 버튼 가로 배치 */}
+
+        {/* 구매 버튼 — 정보 섹션 바깥, 전체 너비 */}
         <div className="flex gap-2">
-          <button className="flex-1 text-xs font-semibold py-2 rounded-lg text-white" style={{ backgroundColor: '#1a73e8' }}>
+          <button className="flex-1 text-sm font-semibold py-3 rounded-lg text-white" style={{ backgroundColor: '#1a73e8' }}>
             선물용 구매
           </button>
-          <button className="flex-1 text-xs font-semibold py-2 rounded-lg border" style={{ color: '#1a73e8', borderColor: '#1a73e8' }}>
+          <button className="flex-1 text-sm font-semibold py-3 rounded-lg border" style={{ color: '#1a73e8', borderColor: '#1a73e8' }}>
             소장용 구매
           </button>
         </div>
       </div>
 
       {/* 안내 바 */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-100">
-        <span className="text-[10px] text-gray-500">이모티콘을 클릭하면 미리보기를 확인할 수 있어요</span>
+      <div
+        className="flex items-center justify-between px-4 py-2.5 border-t border-b"
+        style={darkMode ? { backgroundColor: '#1a1a1a', borderColor: '#333' } : { backgroundColor: '#f9f9f9', borderColor: '#e5e5e5' }}
+      >
+        <span className="text-[11px]" style={{ color: darkMode ? '#999' : '#666' }}>
+          이모티콘을 클릭하면 미리보기를 확인할 수 있어요
+        </span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-gray-400">어두운모드로 보기</span>
-          <div className="w-7 h-4 rounded-full bg-gray-300 relative flex-shrink-0">
-            <div className="absolute left-0.5 top-0.5 w-3 h-3 rounded-full bg-white shadow-sm" />
-          </div>
+          <span className="text-[11px]" style={{ color: darkMode ? '#999' : '#666' }}>어두운모드로 보기</span>
+          <button
+            onClick={() => setDarkMode((v) => !v)}
+            className="w-8 h-4 rounded-full relative flex-shrink-0 transition-colors duration-200"
+            style={{ backgroundColor: darkMode ? '#1a73e8' : '#ccc' }}
+          >
+            <div
+              className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-all duration-200"
+              style={{ left: darkMode ? '17px' : '2px' }}
+            />
+          </button>
         </div>
       </div>
 
       {/* 이모티콘 그리드 */}
-      <div className="p-3">
+      <div className="p-3 transition-colors duration-200" style={{ backgroundColor: darkMode ? '#111' : '#fff' }}>
         <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }}>
           {emoticons.map((e) => {
             const isHovered = hoveredId === e.id
@@ -483,8 +497,125 @@ export function OGQStorePreview({ emoticons, thumbnailId, setName, creatorName }
             )
           })}
           {Array.from({ length: empties }).map((_, i) => (
-            <div key={`empty-${i}`} className="aspect-square rounded-lg bg-gray-50" />
+            <div
+              key={`empty-${i}`}
+              className="aspect-square rounded-lg"
+              style={{ backgroundColor: darkMode ? '#222' : '#f3f4f6' }}
+            />
           ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Kakao Mobile Store Preview ─────────────────────────────
+function KakaoMobileStorePreview({ emoticons, setName, creatorName }: {
+  emoticons: EmoticonFile[]
+  setName?: string
+  creatorName?: string
+}) {
+  const representative = emoticons[0] ?? null
+  const total = Math.max(emoticons.length, 24)
+  const empties = Math.max(0, total - emoticons.length)
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 flex flex-col w-[300px]">
+      {/* 상단 네비게이션 */}
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+        <button className="text-gray-700 text-2xl font-light leading-none">‹</button>
+        <div className="flex items-center gap-4">
+          <button className="text-gray-600 text-base">🏠</button>
+          <button className="text-gray-600 text-base">✕</button>
+        </div>
+      </div>
+      <div className="flex justify-end gap-3 px-4 pb-2">
+        <button className="text-gray-400 text-base">♡</button>
+        <button className="text-gray-400 text-base">⬆</button>
+      </div>
+
+      {/* 대표 이모티콘 */}
+      <div className="flex justify-center pb-3">
+        <div className="w-36 h-36 flex items-center justify-center">
+          {representative
+            ? <img src={representative.dataUrl} alt="대표" className="w-full h-full object-contain" />
+            : <span className="text-5xl">🎨</span>}
+        </div>
+      </div>
+
+      {/* 제목 + 가격 */}
+      <div className="flex flex-col items-center gap-1.5 px-4 pb-4">
+        <p className="text-base font-bold text-gray-900 text-center leading-snug">{setName ?? '나의 이모티콘 세트'}</p>
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-semibold text-gray-500">Ⓒ</span>
+          <span className="text-sm font-bold text-gray-800">300</span>
+        </div>
+      </div>
+
+      {/* 크리에이터 정보 */}
+      <div className="border-t border-gray-100 px-4 py-3 flex items-center gap-2.5">
+        <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-base flex-shrink-0">🐱</div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-gray-900 truncate">{creatorName ?? '나의 크리에이터'} 🎀</p>
+          <p className="text-[10px] text-gray-400">이모티콘 48 | 관심 13.3만</p>
+        </div>
+        <button className="border border-[#3a89fe] text-[#3a89fe] text-[10px] font-semibold px-2.5 py-1 rounded-full flex-shrink-0">
+          + 관심
+        </button>
+      </div>
+
+      {/* 그리드 */}
+      <div className="bg-gray-100 p-2 overflow-y-auto max-h-[260px]">
+        <div className="grid grid-cols-3 gap-1.5">
+          {emoticons.map((e) => (
+            <div key={e.id} className="aspect-square bg-white rounded-xl flex items-center justify-center overflow-hidden">
+              <img src={e.dataUrl} alt="" className="w-full h-full object-contain p-1.5" draggable={false} />
+            </div>
+          ))}
+          {Array.from({ length: empties }).map((_, i) => (
+            <div key={`empty-${i}`} className="aspect-square bg-white rounded-xl" />
+          ))}
+        </div>
+      </div>
+
+      {/* 하단 버튼 바 */}
+      <div className="flex border-t border-gray-100">
+        <button className="flex-1 py-3 flex flex-col items-center gap-0.5 border-r border-gray-100">
+          <span className="text-base">🎁</span>
+          <span className="text-[10px] text-gray-500">선물</span>
+        </button>
+        <button className="flex-1 py-3 flex flex-col items-center gap-0.5 border-r border-gray-100">
+          <span className="text-base">⬆</span>
+          <span className="text-[10px] text-gray-500">공유</span>
+        </button>
+        <button className="flex-[1.5] py-3 bg-gray-900 text-white text-sm font-bold border-r border-gray-100">
+          구매
+        </button>
+        <button className="flex-[2] py-3 bg-[#fee500] text-gray-900 text-[11px] font-bold leading-tight text-center px-1">
+          플러스<br />시작하기
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Kakao Dual Store Preview (모바일 + PC) ─────────────────
+export function KakaoDualStorePreview({ emoticons, thumbnailId, setName, creatorName }: {
+  emoticons: EmoticonFile[]
+  thumbnailId?: string
+  setName?: string
+  creatorName?: string
+}) {
+  return (
+    <div className="flex gap-6 items-start justify-center flex-wrap">
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-xs font-semibold text-gray-400 tracking-wide">모바일</span>
+        <KakaoMobileStorePreview emoticons={emoticons} setName={setName} creatorName={creatorName} />
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-xs font-semibold text-gray-400 tracking-wide">PC</span>
+        <div className="w-[300px]">
+          <KakaoStorePreview emoticons={emoticons} thumbnailId={thumbnailId} setName={setName} creatorName={creatorName} />
         </div>
       </div>
     </div>
@@ -504,8 +635,8 @@ export function ShopPreview() {
     case 'twitch':
       return <TwitchEmotePanel emoticons={emoticons} />
     case 'kakao':
-      return <KakaoShopPreview emoticons={emoticons} />
+      return <KakaoDualStorePreview emoticons={emoticons} />
     default:
-      return <KakaoShopPreview emoticons={emoticons} />
+      return <KakaoDualStorePreview emoticons={emoticons} />
   }
 }

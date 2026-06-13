@@ -264,10 +264,10 @@ function BlogEditor({
       </div>
 
       {/* 컨텐츠 행: 에디터 | 스티커 패널 */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 relative">
         {/* 에디터 영역 (회색 배경 + 흰 종이) */}
         <div className="flex-1 bg-gray-100 py-5 overflow-y-auto min-h-[360px]">
-          <div className="relative mx-auto bg-white min-h-[320px] px-12 py-8" style={{ maxWidth: stickerOpen ? '600px' : '860px' }}>
+          <div className="relative mx-auto bg-white min-h-[320px] px-12 py-8" style={{ maxWidth: '860px' }}>
             <button className="absolute left-3 top-8 w-7 h-7 rounded-full border border-gray-300 bg-white flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:border-gray-400 transition-colors text-base leading-none">
               +
             </button>
@@ -302,13 +302,15 @@ function BlogEditor({
           </div>
         </div>
 
-        {/* 우측 스티커 패널 */}
+        {/* 우측 스티커 패널 (에디터 위에 떠있음) */}
         {stickerOpen && (
-          <BlogStickerPanel
-            onSelect={onEmoticonSelect}
-            onClose={() => setStickerOpen(false)}
-            accentColor={accentColor}
-          />
+          <div className="absolute right-0 top-0 h-full z-10">
+            <BlogStickerPanel
+              onSelect={onEmoticonSelect}
+              onClose={() => setStickerOpen(false)}
+              accentColor={accentColor}
+            />
+          </div>
         )}
       </div>
     </div>

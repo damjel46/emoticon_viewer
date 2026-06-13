@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { useEmoticonStore, useActiveEmoticons, useActiveThumbnailId, useActiveSetName } from '../store/emoticonStore'
 import { useAuthStore } from '../store/authStore'
 import { useProfileStore } from '../store/profileStore'
-import { OGQStorePreview, KakaoStorePreview } from '../components/grid/ShopPreview'
+import { OGQStorePreview, KakaoDualStorePreview } from '../components/grid/ShopPreview'
 import { usePlatformStore } from '../store/platformStore'
 import { useChatStore } from '../store/chatStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
@@ -296,7 +296,7 @@ export function SimulatorPage() {
         {/* 카카오 이모티콘 스토어 */}
         {activePlatform === 'kakao' && ogqOpen ? (
           <div className="flex-1 overflow-y-auto bg-white">
-            <KakaoStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} creatorName={creatorName} />
+            <KakaoDualStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} creatorName={creatorName} />
           </div>
         ) : activePlatform === 'soop' && ogqOpen ? (
           <div className="flex-1 overflow-y-auto bg-white">

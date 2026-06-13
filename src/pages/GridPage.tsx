@@ -98,7 +98,7 @@ export function GridPage() {
       </div>
 
       {showShop && (
-        <Modal title={`${nameShort} 미리보기`} onClose={() => setShowShop(false)}>
+        <Modal title={`${nameShort} 미리보기`} onClose={() => setShowShop(false)} wide>
           <ShopPreview />
         </Modal>
       )}

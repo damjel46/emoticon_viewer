@@ -28,11 +28,13 @@ function AppShell() {
   if (isMobile) return <MobileLanding />
 
   return (
-    <div className="flex h-screen overflow-hidden font-kakao">
-      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
-      <main className="flex-1 overflow-hidden flex flex-col bg-white">
-        <Outlet />
-      </main>
+    <div className="bg-gray-100 h-screen flex">
+      <div className="flex mx-auto w-full max-w-[1440px] h-screen overflow-hidden font-kakao">
+        <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
+        <main className="flex-1 overflow-hidden flex flex-col bg-white">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }
