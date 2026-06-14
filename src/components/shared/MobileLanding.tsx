@@ -1,12 +1,21 @@
-import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
+import { useNavigate } from 'react-router-dom'
+import { PLATFORMS } from '../../config/platforms'
+
+const FEATURED = [
+  { id: 'kakao', desc: '말풍선 채팅 · 이모티콘 / 미니 탭' },
+  { id: 'soop', desc: '스트리밍 채팅 · 인라인 스타일' },
+  { id: 'ogq', desc: '치지직 채팅 · 다크 테마' },
+] as const
 
 export function MobileLanding() {
+  const navigate = useNavigate()
+
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-12 font-kakao">
-      <div className="w-full max-w-sm flex flex-col items-center gap-8">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-10 font-kakao">
+      <div className="w-full max-w-sm flex flex-col items-center gap-7">
 
         {/* 로고 & 타이틀 */}
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex flex-col items-center gap-2 text-center">
           <div className="text-5xl">🖼️</div>
           <h1 className="text-2xl font-bold text-gray-900">이모티콘뷰어</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
@@ -15,47 +24,41 @@ export function MobileLanding() {
           </p>
         </div>
 
-        {/* 플랫폼 칩 */}
-        <div className="flex flex-wrap justify-center gap-2">
-          {PLATFORM_ORDER.map((id) => {
+        {/* 플랫폼 선택 */}
+        <div className="w-full flex flex-col gap-3">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">플랫폼 선택</p>
+          {FEATURED.map(({ id, desc }) => {
             const p = PLATFORMS[id]
             return (
-              <span
+              <button
                 key={id}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white"
-                style={{ backgroundColor: p.accentColor }}
+                onClick={() => navigate(`/${id}`)}
+                className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-left transition-all active:scale-[0.98]"
+                style={{ backgroundColor: `${p.accentColor}18`, border: `1.5px solid ${p.accentColor}40` }}
               >
-                <span>{p.icon}</span>
-                <span>{p.nameShort}</span>
-              </span>
+                <span className="text-3xl flex-shrink-0">{p.icon}</span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm text-gray-900">{p.name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                </div>
+                <span className="ml-auto text-gray-400 flex-shrink-0">›</span>
+              </button>
             )
           })}
         </div>
 
-        {/* 주요 기능 */}
-        <div className="w-full flex flex-col gap-3">
-          {[
-            { icon: '💬', text: '실제 채팅창 시뮬레이터로 미리보기' },
-            { icon: '🎞️', text: 'GIF 프레임·용량 스펙 자동 검사' },
-            { icon: '📱', text: 'QR로 모바일에서 실제 크기 확인' },
-          ].map(({ icon, text }) => (
-            <div key={text} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
-              <span className="text-xl">{icon}</span>
-              <span className="text-sm text-gray-700">{text}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* PC 유도 안내 */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl">💻</div>
-          <p className="text-sm font-medium text-gray-800">PC 또는 태블릿에서 사용하세요</p>
-          <p className="text-xs text-gray-400">
-            이모티콘 작업 특성상 PC 환경에 최적화되어 있습니다.
+        {/* PC 안내 */}
+        <div
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl"
+          style={{ backgroundColor: '#f8f9fa' }}
+        >
+          <span className="text-xl flex-shrink-0">💻</span>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            GIF 검사, 스펙 확인 등 더 많은 기능은<br />
+            <span className="font-semibold text-gray-700">PC에서 사용 가능합니다.</span>
           </p>
         </div>
 
-        {/* URL */}
         <p className="text-xs text-gray-300">emoticonviewer.site</p>
       </div>
     </div>
