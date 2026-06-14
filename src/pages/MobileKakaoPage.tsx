@@ -68,7 +68,12 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
   const handleEmoticonSelect = (emoticonId: string) => {
     const emote = emoticons.find((e) => e.id === emoticonId)
     if (!emote) return
-    chatInputRef.current?.insertEmoticon(emote, inlinePx)
+    if (isMini) {
+      chatInputRef.current?.insertEmoticon(emote, inlinePx)
+    } else {
+      handleSend([{ kind: 'emoticon', emoticonId: emote.id }])
+      chatInputRef.current?.clear()
+    }
   }
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
