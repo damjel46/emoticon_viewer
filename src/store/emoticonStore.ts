@@ -53,6 +53,7 @@ interface EmoticonState {
   activeSetId: ActiveSetIds
 
   loadFromCloud: (userId: string) => Promise<void>
+  saveAllToCloud: (userId: string) => Promise<void>
 
   addSet: () => string
   renameSet: (setId: string, name: string) => void
@@ -71,6 +72,16 @@ export const useEmoticonStore = create<EmoticonState>()(
     (set, get) => ({
       byPlatform: {},
       activeSetId: {},
+
+      saveAllToCloud: async (userId) => {
+        const state = get()
+        for (const [pid, sets] of Object.entries(state.byPlatform)) {
+          if (!sets) continue
+          for (let i = 0; i < sets.length; i++) {
+            await syncSetToCloud(userId, pid, sets[i], i)
+          }
+        }
+      },
 
       loadFromCloud: async (userId) => {
         const { data, error } = await supabase

@@ -6,6 +6,8 @@ import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { CHAT_THEMES } from '../store/themeStore'
 import { MobileChatInput, type MobileChatInputHandle } from '../components/mobile/MobileChatInput'
 import { MobilePlatformTabs } from '../components/mobile/MobilePlatformTabs'
+import { LoginModal } from '../components/auth/LoginModal'
+import { PaymentModal } from '../components/auth/PaymentModal'
 import type { EmoticonFile, ContentSegment, ThemeKey } from '../types'
 
 type TabId = 'emoticon' | 'mini'
@@ -35,7 +37,7 @@ interface Props {
 export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
   const setPlatform = usePlatformStore((s) => s.setPlatform)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
-  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
+  const saveAllToCloud = useEmoticonStore((s) => s.saveAllToCloud)
   const storeEmoticons = useActiveEmoticons()
   const emoticons = propEmoticons ?? storeEmoticons
   const profile = useAuthStore((s) => s.profile)
@@ -47,6 +49,8 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<TabId>('emoticon')
   const [syncing, setSyncing] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -79,6 +83,14 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
       handleSend([{ kind: 'emoticon', emoticonId: emote.id }])
       chatInputRef.current?.clear()
     }
+  }
+
+  const handleSave = async () => {
+    if (!user) { setShowLogin(true); return }
+    if (!profile?.is_premium) { setShowPayment(true); return }
+    setSyncing(true)
+    await saveAllToCloud(user.id)
+    setSyncing(false)
   }
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -264,20 +276,14 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
             >
               +
             </button>
-            {profile?.is_premium && user && (
-              <button
-                onClick={async () => {
-                  setSyncing(true)
-                  await loadFromCloud(user.id)
-                  setSyncing(false)
-                }}
-                disabled={syncing}
-                className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm disabled:opacity-40"
-                title="라이브러리 동기화"
-              >
-                {syncing ? '⏳' : '☁️'}
-              </button>
-            )}
+            <button
+              onClick={handleSave}
+              disabled={syncing}
+              className="flex-shrink-0 h-8 px-2.5 rounded-lg flex items-center justify-center text-[11px] font-semibold disabled:opacity-40"
+              style={{ backgroundColor: '#fee500', color: '#3c1e1e' }}
+            >
+              {syncing ? '저장 중...' : '동기화하기'}
+            </button>
             {emoticons.length > 0 && (
               <div className="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden border border-gray-200">
                 <img src={emoticons[0].dataUrl} alt="pack" className="w-full h-full object-contain" />
@@ -285,6 +291,8 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
             )}
           </div>
           <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={handleUpload} />
+          {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+          {showPayment && <PaymentModal onClose={() => setShowPayment(false)} />}
 
           {/* 이모티콘 그리드 */}
           <div className="overflow-y-auto" style={{ maxHeight: '165px' }}>
