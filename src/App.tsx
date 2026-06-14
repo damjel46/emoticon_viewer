@@ -43,8 +43,8 @@ function AppShell() {
   }
 
   return (
-    <div className="bg-gray-100 h-screen flex">
-      <div className="flex mx-auto w-full max-w-[1440px] h-screen overflow-hidden font-kakao">
+    <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+      <div className="flex mx-auto w-full max-w-[1440px] overflow-hidden font-kakao rounded-2xl shadow-lg border border-gray-200" style={{ height: 'calc(100vh - 2rem)' }}>
         <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
         <main className="flex-1 overflow-hidden flex flex-col bg-white">
           <Outlet />

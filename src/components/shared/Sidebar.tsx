@@ -72,7 +72,7 @@ export function Sidebar({ collapsed, onToggle }: Props) {
     <>
       <aside
         className={clsx(
-          'min-h-screen bg-[#3c1e1e] flex flex-col py-6 flex-shrink-0 transition-all duration-200',
+          'h-full bg-[#3c1e1e] flex flex-col py-6 flex-shrink-0 transition-all duration-200',
           collapsed ? 'w-14 px-2' : 'w-56 px-3'
         )}
       >
