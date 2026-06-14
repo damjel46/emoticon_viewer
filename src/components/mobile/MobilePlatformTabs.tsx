@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PLATFORMS } from '../../config/platforms'
 import { useAuthStore } from '../../store/authStore'
+import { useEmoticonStore } from '../../store/emoticonStore'
 import { LoginModal } from '../auth/LoginModal'
 
 const TABS = [
@@ -21,8 +22,10 @@ export function MobilePlatformTabs({ currentPlatform, bgColor = '#ffffff', inact
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
   const signOut = useAuthStore((s) => s.signOut)
+  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
   const [showLogin, setShowLogin] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
 
@@ -87,6 +90,20 @@ export function MobilePlatformTabs({ currentPlatform, bgColor = '#ffffff', inact
                     <p className="text-[10px] font-semibold text-yellow-600">⭐ 프리미엄</p>
                   )}
                 </div>
+                {profile?.is_premium && (
+                  <button
+                    onClick={async () => {
+                      setSyncing(true)
+                      await loadFromCloud(user.id)
+                      setSyncing(false)
+                      setShowMenu(false)
+                    }}
+                    disabled={syncing}
+                    className="w-full text-left px-3 py-2 text-xs text-blue-500 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {syncing ? '동기화 중...' : '☁️ 라이브러리 동기화'}
+                  </button>
+                )}
                 <button
                   onClick={() => { signOut(); setShowMenu(false) }}
                   className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-gray-50"
