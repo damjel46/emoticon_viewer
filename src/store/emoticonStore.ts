@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware'
 import type { EmoticonFile, EmoticonSet } from '../types'
 import type { PlatformId } from '../config/platforms'
 import { usePlatformStore } from './platformStore'
+import { supabase } from '../lib/supabase'
+import { useAuthStore } from './authStore'
 
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
   const result = [...arr]
@@ -15,12 +17,42 @@ function makeSet(name: string): EmoticonSet {
   return { id: crypto.randomUUID(), name, emoticons: [] }
 }
 
+function getCloudUserId(): string | null {
+  const { user, profile } = useAuthStore.getState()
+  if (!user || !profile?.is_premium) return null
+  return user.id
+}
+
+async function syncSetToCloud(
+  userId: string,
+  platformId: string,
+  targetSet: EmoticonSet,
+  order: number
+): Promise<void> {
+  await supabase.from('emoticon_sets').upsert({
+    id: targetSet.id,
+    user_id: userId,
+    platform_id: platformId,
+    name: targetSet.name,
+    emoticons: targetSet.emoticons,
+    thumbnail_id: targetSet.thumbnailId ?? null,
+    display_order: order,
+    updated_at: new Date().toISOString(),
+  })
+}
+
+async function deleteSetFromCloud(setId: string): Promise<void> {
+  await supabase.from('emoticon_sets').delete().eq('id', setId)
+}
+
 type ByPlatform = Partial<Record<PlatformId, EmoticonSet[]>>
 type ActiveSetIds = Partial<Record<PlatformId, string>>
 
 interface EmoticonState {
   byPlatform: ByPlatform
   activeSetId: ActiveSetIds
+
+  loadFromCloud: (userId: string) => Promise<void>
 
   addSet: () => string
   renameSet: (setId: string, name: string) => void
@@ -40,6 +72,51 @@ export const useEmoticonStore = create<EmoticonState>()(
       byPlatform: {},
       activeSetId: {},
 
+      loadFromCloud: async (userId) => {
+        const { data, error } = await supabase
+          .from('emoticon_sets')
+          .select('*')
+          .eq('user_id', userId)
+          .order('display_order', { ascending: true })
+
+        if (error || !data) return
+
+        const cloudByPlatform: ByPlatform = {}
+        for (const row of data) {
+          const pid = row.platform_id as PlatformId
+          if (!cloudByPlatform[pid]) cloudByPlatform[pid] = []
+          cloudByPlatform[pid]!.push({
+            id: row.id,
+            name: row.name,
+            emoticons: row.emoticons as EmoticonFile[],
+            thumbnailId: row.thumbnail_id ?? undefined,
+          })
+        }
+
+        // Upload local-only sets to cloud so no data is lost
+        const currentState = get()
+        for (const [pid, localSets] of Object.entries(currentState.byPlatform)) {
+          if (!localSets) continue
+          for (let i = 0; i < localSets.length; i++) {
+            const localSet = localSets[i]
+            const cloudSets = cloudByPlatform[pid as PlatformId] ?? []
+            if (!cloudSets.find((cs) => cs.id === localSet.id)) {
+              void syncSetToCloud(userId, pid, localSet, cloudSets.length + i)
+              cloudByPlatform[pid as PlatformId] = [...cloudSets, localSet]
+            }
+          }
+        }
+
+        const newActiveSetId: ActiveSetIds = { ...currentState.activeSetId }
+        for (const [pid, sets] of Object.entries(cloudByPlatform)) {
+          if (sets && sets.length > 0 && !newActiveSetId[pid as PlatformId]) {
+            newActiveSetId[pid as PlatformId] = sets[0].id
+          }
+        }
+
+        set({ byPlatform: cloudByPlatform, activeSetId: newActiveSetId })
+      },
+
       addSet: () => {
         const pid = usePlatformStore.getState().activePlatform
         const currentSets = get().byPlatform[pid] ?? []
@@ -51,6 +128,8 @@ export const useEmoticonStore = create<EmoticonState>()(
           },
           activeSetId: { ...s.activeSetId, [pid]: newSet.id },
         }))
+        const userId = getCloudUserId()
+        if (userId) void syncSetToCloud(userId, pid, newSet, currentSets.length)
         return newSet.id
       },
 
@@ -64,6 +143,12 @@ export const useEmoticonStore = create<EmoticonState>()(
             ),
           },
         }))
+        const userId = getCloudUserId()
+        if (userId) {
+          const sets = get().byPlatform[pid] ?? []
+          const updated = sets.find((s) => s.id === setId)
+          if (updated) void syncSetToCloud(userId, pid, updated, sets.indexOf(updated))
+        }
       },
 
       deleteSet: (setId) => {
@@ -77,6 +162,8 @@ export const useEmoticonStore = create<EmoticonState>()(
           byPlatform: { ...s.byPlatform, [pid]: remaining },
           activeSetId: { ...s.activeSetId, [pid]: newActiveId },
         }))
+        const userId = getCloudUserId()
+        if (userId) void deleteSetFromCloud(setId)
       },
 
       switchSet: (setId) => {
@@ -97,6 +184,12 @@ export const useEmoticonStore = create<EmoticonState>()(
             ),
           },
         }))
+        const userId = getCloudUserId()
+        if (userId) {
+          const sets = get().byPlatform[pid] ?? []
+          const updated = sets.find((s) => s.id === activeId)
+          if (updated) void syncSetToCloud(userId, pid, updated, sets.indexOf(updated))
+        }
       },
 
       addEmoticons: (files) => {
@@ -127,6 +220,12 @@ export const useEmoticonStore = create<EmoticonState>()(
           },
           activeSetId: { ...s.activeSetId, [pid]: resolvedId },
         }))
+        const userId = getCloudUserId()
+        if (userId) {
+          const newSets = get().byPlatform[pid] ?? []
+          const updated = newSets.find((st) => st.id === resolvedId)
+          if (updated) void syncSetToCloud(userId, pid, updated, newSets.indexOf(updated))
+        }
       },
 
       removeEmoticon: (id) => {
@@ -142,6 +241,12 @@ export const useEmoticonStore = create<EmoticonState>()(
             ),
           },
         }))
+        const userId = getCloudUserId()
+        if (userId) {
+          const sets = get().byPlatform[pid] ?? []
+          const updated = sets.find((s) => s.id === activeId)
+          if (updated) void syncSetToCloud(userId, pid, updated, sets.indexOf(updated))
+        }
       },
 
       reorder: (from, to) => {
@@ -157,6 +262,12 @@ export const useEmoticonStore = create<EmoticonState>()(
             ),
           },
         }))
+        const userId = getCloudUserId()
+        if (userId) {
+          const sets = get().byPlatform[pid] ?? []
+          const updated = sets.find((s) => s.id === activeId)
+          if (updated) void syncSetToCloud(userId, pid, updated, sets.indexOf(updated))
+        }
       },
 
       clear: () => {
@@ -170,6 +281,12 @@ export const useEmoticonStore = create<EmoticonState>()(
             ),
           },
         }))
+        const userId = getCloudUserId()
+        if (userId) {
+          const sets = get().byPlatform[pid] ?? []
+          const updated = sets.find((s) => s.id === activeId)
+          if (updated) void syncSetToCloud(userId, pid, updated, sets.indexOf(updated))
+        }
       },
     }),
     { name: 'emoticons-v3' }
