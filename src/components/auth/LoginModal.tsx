@@ -118,7 +118,7 @@ export function LoginModal({ onClose }: Props) {
                   </div>
                 )}
                 <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-4">
-                  <p className="text-xs font-semibold text-amber-700 mb-2">✨ 로그인하면 이런 게 좋아요!</p>
+                  <p className="text-xs font-semibold text-amber-700 mb-2">✨ 로그인 & 결제하면 이런 게 좋아요!</p>
                   <ul className="flex flex-col gap-1.5">
                     {[
                       { icon: '☁️', text: '세트 저장 & 불러오기' },
