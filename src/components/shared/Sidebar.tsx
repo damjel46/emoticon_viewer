@@ -153,7 +153,7 @@ export function Sidebar() {
             onClick={handleSave}
             disabled={saving}
             className="mb-2 w-full rounded-xl py-2 text-xs font-semibold transition-colors disabled:opacity-50"
-            style={{ backgroundColor: saving ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.12)', color: accentColor }}
+            style={{ backgroundColor: saving ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.12)', color: '#ffffff' }}
           >
             {saving ? '저장 중...' : '💾 세트 저장'}
           </button>
