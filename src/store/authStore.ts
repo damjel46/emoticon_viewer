@@ -43,7 +43,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       .select('*')
       .eq('id', user.id)
       .single()
-    if (data) set({ profile: data as Profile })
+    if (data) {
+      set({ profile: data as Profile })
+      if (data.is_premium) {
+        const { useEmoticonStore } = await import('./emoticonStore')
+        await useEmoticonStore.getState().loadFromCloud(user.id)
+      }
+    }
   },
 
   signOut: async () => {

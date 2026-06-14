@@ -8,6 +8,7 @@ interface Props {
 type Mode = 'login' | 'signup' | 'reset'
 
 export function LoginModal({ onClose }: Props) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -95,6 +96,27 @@ export function LoginModal({ onClose }: Props) {
           <>
             {mode === 'login' && (
               <>
+                {isMobile && (
+                  <div
+                    className="rounded-xl px-4 py-3 mb-4 flex items-start gap-3"
+                    style={{ backgroundColor: '#f0f7ff', border: '1px solid #c0d8f0' }}
+                  >
+                    <span className="text-xl flex-shrink-0">🖥️</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-blue-800 mb-1">PC에서 더 많은 기능이 있어요!</p>
+                      <p className="text-xs text-blue-700 mb-2">
+                        업로드 · GIF 분석 · QR 공유 · 상세 설정
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => window.open('https://emoticonviewer.site')}
+                        className="text-xs font-semibold text-blue-600 underline underline-offset-2"
+                      >
+                        emoticonviewer.site →
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-4">
                   <p className="text-xs font-semibold text-amber-700 mb-2">✨ 로그인하면 이런 게 좋아요!</p>
                   <ul className="flex flex-col gap-1.5">

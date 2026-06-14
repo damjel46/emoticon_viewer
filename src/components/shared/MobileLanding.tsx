@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PLATFORMS } from '../../config/platforms'
+import { useAuthStore } from '../../store/authStore'
+import { LoginModal } from '../auth/LoginModal'
 
 const FEATURED = [
   { id: 'kakao', desc: '말풍선 채팅 · 이모티콘 / 미니 탭' },
@@ -13,6 +15,13 @@ const STORAGE_KEY = 'pc_promo_dismissed'
 export function MobileLanding() {
   const navigate = useNavigate()
   const [showPopup, setShowPopup] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+
+  const user = useAuthStore((s) => s.user)
+  const profile = useAuthStore((s) => s.profile)
+  const signOut = useAuthStore((s) => s.signOut)
+
+  const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
 
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEY)) setShowPopup(true)
@@ -63,14 +72,50 @@ export function MobileLanding() {
 
       <div className="w-full max-w-sm flex flex-col items-center gap-7">
 
-        {/* 로고 & 타이틀 */}
+        {/* 상단 유저 영역 */}
+        <div className="w-full flex items-center justify-between">
+          <div className="text-2xl">🖼️</div>
+          {user ? (
+            <div className="flex items-center gap-2">
+              {profile?.is_premium && (
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: '#fff8e1', color: '#b8860b' }}>
+                  ☁️ 동기화됨
+                </span>
+              )}
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-xs text-gray-600 active:bg-gray-100"
+              >
+                <span className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">
+                  {avatarLetter}
+                </span>
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="px-4 py-1.5 rounded-full text-xs font-semibold text-white active:opacity-80"
+              style={{ backgroundColor: '#3c1e1e' }}
+            >
+              로그인
+            </button>
+          )}
+        </div>
+
+        {/* 타이틀 */}
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="text-5xl">🖼️</div>
           <h1 className="text-2xl font-bold text-gray-900">이모티콘뷰어</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
             이모티콘 제출 전, 실제 채팅창에서<br />
             어떻게 보이는지 미리 확인하세요.
           </p>
+          {user && !profile?.is_premium && (
+            <p className="text-xs text-gray-400 mt-1">
+              💡 프리미엄 구매 시 PC ↔ 모바일 세트 동기화
+            </p>
+          )}
         </div>
 
         {/* 플랫폼 선택 */}
@@ -110,6 +155,8 @@ export function MobileLanding() {
 
         <p className="text-xs text-gray-300">emoticonviewer.site</p>
       </div>
+
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     </div>
   )
 }
