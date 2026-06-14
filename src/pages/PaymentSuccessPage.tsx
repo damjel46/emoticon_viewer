@@ -29,11 +29,6 @@ export function PaymentSuccessPage() {
         return
       }
 
-      await supabase
-        .from('profiles')
-        .update({ is_premium: true, purchased_at: new Date().toISOString() })
-        .eq('id', partner_user_id)
-
       localStorage.removeItem('kakaopay_tid')
       localStorage.removeItem('kakaopay_order_id')
       localStorage.removeItem('kakaopay_user_id')
