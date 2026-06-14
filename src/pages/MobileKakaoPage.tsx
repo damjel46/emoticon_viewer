@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useActiveEmoticons, useEmoticonStore } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
+import { useAuthStore } from '../store/authStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { CHAT_THEMES } from '../store/themeStore'
 import { MobileChatInput, type MobileChatInputHandle } from '../components/mobile/MobileChatInput'
@@ -34,14 +35,18 @@ interface Props {
 export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
   const setPlatform = usePlatformStore((s) => s.setPlatform)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
+  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
   const storeEmoticons = useActiveEmoticons()
   const emoticons = propEmoticons ?? storeEmoticons
+  const profile = useAuthStore((s) => s.profile)
+  const user = useAuthStore((s) => s.user)
 
   const [messages, setMessages] = useState<Message[]>([])
   const [sender, setSender] = useState<'나' | '상대방'>('나')
   const [themeKey, setThemeKey] = useState<ThemeKey>('light')
   const [pickerOpen, setPickerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<TabId>('emoticon')
+  const [syncing, setSyncing] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -259,6 +264,20 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
             >
               +
             </button>
+            {profile?.is_premium && user && (
+              <button
+                onClick={async () => {
+                  setSyncing(true)
+                  await loadFromCloud(user.id)
+                  setSyncing(false)
+                }}
+                disabled={syncing}
+                className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm disabled:opacity-40"
+                title="라이브러리 동기화"
+              >
+                {syncing ? '⏳' : '☁️'}
+              </button>
+            )}
             {emoticons.length > 0 && (
               <div className="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden border border-gray-200">
                 <img src={emoticons[0].dataUrl} alt="pack" className="w-full h-full object-contain" />

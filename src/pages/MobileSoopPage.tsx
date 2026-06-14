@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useActiveEmoticons, useEmoticonStore } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
+import { useAuthStore } from '../store/authStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { MobileChatInput, type MobileChatInputHandle } from '../components/mobile/MobileChatInput'
 import { MobilePlatformTabs } from '../components/mobile/MobilePlatformTabs'
@@ -23,10 +24,14 @@ interface ChatMessage {
 export function MobileSoopPage() {
   const setPlatform = usePlatformStore((s) => s.setPlatform)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
+  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
   const emoticons = useActiveEmoticons()
+  const profile = useAuthStore((s) => s.profile)
+  const user = useAuthStore((s) => s.user)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -148,6 +153,20 @@ export function MobileSoopPage() {
               S
             </button>
             <div className="flex-1" />
+            {profile?.is_premium && user && (
+              <button
+                onClick={async () => {
+                  setSyncing(true)
+                  await loadFromCloud(user.id)
+                  setSyncing(false)
+                }}
+                disabled={syncing}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-sm disabled:opacity-40"
+                title="라이브러리 동기화"
+              >
+                {syncing ? '⏳' : '☁️'}
+              </button>
+            )}
             <button
               onClick={() => fileRef.current?.click()}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 text-lg"
