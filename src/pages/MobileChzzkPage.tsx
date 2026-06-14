@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useActiveEmoticons, useEmoticonStore } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
+import { useAuthStore } from '../store/authStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { MobileChatInput, type MobileChatInputHandle } from '../components/mobile/MobileChatInput'
 import { MobilePlatformTabs } from '../components/mobile/MobilePlatformTabs'
@@ -24,10 +25,14 @@ interface ChatMessage {
 export function MobileChzzkPage() {
   const setPlatform = usePlatformStore((s) => s.setPlatform)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
+  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
   const emoticons = useActiveEmoticons()
+  const profile = useAuthStore((s) => s.profile)
+  const user = useAuthStore((s) => s.user)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -153,6 +158,21 @@ export function MobileChzzkPage() {
               <span className="text-sm">⚾</span>
             </button>
             <div className="flex-1" />
+            {profile?.is_premium && user && (
+              <button
+                onClick={async () => {
+                  setSyncing(true)
+                  await loadFromCloud(user.id)
+                  setSyncing(false)
+                }}
+                disabled={syncing}
+                className="w-8 h-8 flex items-center justify-center rounded-full text-sm disabled:opacity-40"
+                style={{ backgroundColor: '#2a2a2a' }}
+                title="라이브러리 동기화"
+              >
+                {syncing ? '⏳' : '☁️'}
+              </button>
+            )}
             <button
               onClick={() => fileRef.current?.click()}
               className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 text-lg"
