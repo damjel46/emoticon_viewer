@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useProfileStore } from '../../store/profileStore'
+import { useEmoticonStore } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
 import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
@@ -43,9 +44,11 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
   const displayName = useProfileStore((s) => s.displayName)
+  const saveAllToCloud = useEmoticonStore((s) => s.saveAllToCloud)
   const [showLogin, setShowLogin] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -56,6 +59,14 @@ export function Sidebar() {
   const handlePremium = () => {
     if (!user) { setShowLogin(true); return }
     setShowPayment(true)
+  }
+
+  const handleSave = async () => {
+    if (!user) { setShowLogin(true); return }
+    if (!profile?.is_premium) { setShowPayment(true); return }
+    setSaving(true)
+    await saveAllToCloud(user.id)
+    setSaving(false)
   }
 
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
@@ -138,6 +149,14 @@ export function Sidebar() {
 
         {/* 유저 영역 */}
         <div className="mt-4 border-t border-white/10 pt-3">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="mb-2 w-full rounded-xl py-2 text-xs font-semibold transition-colors disabled:opacity-50"
+            style={{ backgroundColor: saving ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.12)', color: accentColor }}
+          >
+            {saving ? '저장 중...' : '💾 세트 저장'}
+          </button>
           {!profile?.is_premium && (
             <button
               onClick={handlePremium}

@@ -5,6 +5,8 @@ import { useAuthStore } from '../store/authStore'
 import { fileToEmoticon } from '../utils/fileToEmoticon'
 import { MobileChatInput, type MobileChatInputHandle } from '../components/mobile/MobileChatInput'
 import { MobilePlatformTabs } from '../components/mobile/MobilePlatformTabs'
+import { LoginModal } from '../components/auth/LoginModal'
+import { PaymentModal } from '../components/auth/PaymentModal'
 import type { ContentSegment } from '../types'
 
 const CHZZK_ACCENT = '#02e191'
@@ -25,7 +27,7 @@ interface ChatMessage {
 export function MobileChzzkPage() {
   const setPlatform = usePlatformStore((s) => s.setPlatform)
   const addEmoticons = useEmoticonStore((s) => s.addEmoticons)
-  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
+  const saveAllToCloud = useEmoticonStore((s) => s.saveAllToCloud)
   const emoticons = useActiveEmoticons()
   const profile = useAuthStore((s) => s.profile)
   const user = useAuthStore((s) => s.user)
@@ -33,6 +35,8 @@ export function MobileChzzkPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [pickerOpen, setPickerOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -54,6 +58,14 @@ export function MobileChzzkPage() {
     const emote = emoticons.find((e) => e.id === emoticonId)
     if (!emote) return
     chatInputRef.current?.insertEmoticon(emote, 22)
+  }
+
+  const handleSave = async () => {
+    if (!user) { setShowLogin(true); return }
+    if (!profile?.is_premium) { setShowPayment(true); return }
+    setSyncing(true)
+    await saveAllToCloud(user.id)
+    setSyncing(false)
   }
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,21 +170,14 @@ export function MobileChzzkPage() {
               <span className="text-sm">⚾</span>
             </button>
             <div className="flex-1" />
-            {profile?.is_premium && user && (
-              <button
-                onClick={async () => {
-                  setSyncing(true)
-                  await loadFromCloud(user.id)
-                  setSyncing(false)
-                }}
-                disabled={syncing}
-                className="w-8 h-8 flex items-center justify-center rounded-full text-sm disabled:opacity-40"
-                style={{ backgroundColor: '#2a2a2a' }}
-                title="라이브러리 동기화"
-              >
-                {syncing ? '⏳' : '☁️'}
-              </button>
-            )}
+            <button
+              onClick={handleSave}
+              disabled={syncing}
+              className="h-7 px-2.5 flex items-center justify-center rounded-full text-black text-[11px] font-semibold disabled:opacity-40"
+              style={{ backgroundColor: CHZZK_ACCENT }}
+            >
+              {syncing ? '저장 중...' : '동기화하기'}
+            </button>
             <button
               onClick={() => fileRef.current?.click()}
               className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 text-lg"
@@ -226,6 +231,9 @@ export function MobileChzzkPage() {
         </div>
       )}
       <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={handleUpload} />
+
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showPayment && <PaymentModal onClose={() => setShowPayment(false)} />}
 
       {/* 입력 바 */}
       <div className="flex-shrink-0 border-t" style={{ borderColor: CHZZK_BORDER, backgroundColor: CHZZK_DARK }}>
