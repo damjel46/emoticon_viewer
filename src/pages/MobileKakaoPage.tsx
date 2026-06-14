@@ -145,6 +145,28 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
           const emoteSegs = msg.segments.filter((s): s is { kind: 'emoticon'; emoticonId: string } => s.kind === 'emoticon')
           const hasText = msg.segments.some((s) => s.kind === 'text')
           const emoticonPx = getEmoticonPx(msg.mini, hasText, emoteSegs.length)
+          const isMiniOnly = msg.mini && !hasText && emoteSegs.length > 0
+
+          const bubbleClass = [
+            'inline-flex items-center gap-0.5',
+            isMiniOnly
+              ? emoteSegs.length <= 6 ? 'flex-nowrap' : 'flex-wrap'
+              : 'flex-wrap',
+            hasText || emoteSegs.length === 0
+              ? `px-3 py-1.5 rounded-2xl ${isMe ? 'rounded-br-sm' : 'rounded-bl-sm'}`
+              : '',
+          ].join(' ')
+
+          const bubbleStyle: React.CSSProperties = {}
+          if (hasText || emoteSegs.length === 0) {
+            bubbleStyle.backgroundColor = isMe ? theme.myBubbleColor! : theme.otherBubbleColor!
+            bubbleStyle.boxShadow = '0 1px 2px rgba(0,0,0,0.1)'
+            bubbleStyle.wordBreak = 'break-word'
+          }
+          if (isMiniOnly && emoteSegs.length > 6) {
+            // 4열 그리드: 36px × 4 + gap 3 × 2px
+            bubbleStyle.maxWidth = '150px'
+          }
 
           return (
             <div key={msg.id} className={`flex items-end gap-1 mb-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -160,23 +182,7 @@ export function MobileKakaoPage({ emoticons: propEmoticons }: Props = {}) {
                   </span>
                 )}
                 <div className={`flex items-end gap-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div
-                    className={`inline-flex flex-wrap items-center gap-0.5 ${
-                      // 이모티콘만 있고 텍스트 없으면 배경 없이
-                      hasText || emoteSegs.length === 0
-                        ? `px-3 py-1.5 rounded-2xl ${isMe ? 'rounded-br-sm' : 'rounded-bl-sm'}`
-                        : ''
-                    }`}
-                    style={
-                      hasText || emoteSegs.length === 0
-                        ? {
-                            backgroundColor: isMe ? theme.myBubbleColor! : theme.otherBubbleColor!,
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                            wordBreak: 'break-word',
-                          }
-                        : {}
-                    }
-                  >
+                  <div className={bubbleClass} style={bubbleStyle}>
                     {msg.segments.map((seg, i) => {
                       if (seg.kind === 'text') {
                         return (

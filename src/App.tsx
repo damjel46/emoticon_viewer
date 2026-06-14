@@ -28,7 +28,6 @@ function useIsMobile() {
 }
 
 function AppShell() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const init = useAuthStore((s) => s.init)
   const isMobile = useIsMobile()
   const location = useLocation()
@@ -43,13 +42,15 @@ function AppShell() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-      <div className="flex mx-auto w-full max-w-[1440px] overflow-hidden font-kakao rounded-2xl shadow-lg border border-gray-200" style={{ height: 'calc(100vh - 2rem)' }}>
-        <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
+    <div className="bg-gray-100 h-screen flex flex-col p-3 gap-2">
+      <div className="flex flex-1 max-w-[1440px] w-full mx-auto overflow-hidden font-kakao rounded-2xl shadow-lg border border-gray-200 min-h-0">
+        <Sidebar />
         <main className="flex-1 overflow-hidden flex flex-col bg-white">
           <Outlet />
-          <Footer />
         </main>
+      </div>
+      <div className="max-w-[1440px] w-full mx-auto">
+        <Footer />
       </div>
     </div>
   )
