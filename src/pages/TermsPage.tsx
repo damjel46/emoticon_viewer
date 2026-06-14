@@ -40,7 +40,7 @@ export function TermsPage() {
         <section className="mb-6">
           <h2 className="font-bold text-gray-700 mb-2">제4조 (유료 서비스 및 결제)</h2>
           <div className="text-sm text-gray-600 leading-relaxed space-y-2">
-            <p>① 프리미엄 서비스 이용료는 <strong>4,900원 (일회성 결제)</strong>입니다.</p>
+            <p>① 프리미엄 서비스 이용료는 <strong>3,300원 (일회성 결제)</strong>입니다.</p>
             <p>② 결제는 카카오페이를 통해 이루어집니다.</p>
             <p>③ 결제 완료 시 즉시 프리미엄 기능이 활성화됩니다.</p>
             <p>④ 서비스 제공 기간: 결제일로부터 서비스 종료일까지 영구 제공.</p>

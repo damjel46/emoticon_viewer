@@ -56,7 +56,7 @@ export function PaymentModal({ onClose }: Props) {
 
           {/* 가격 */}
           <div className="text-center">
-            <p className="text-3xl font-black text-gray-900">4,900<span className="text-xl font-bold">원</span></p>
+            <p className="text-3xl font-black text-gray-900">3,300<span className="text-xl font-bold">원</span></p>
           </div>
 
           {/* 혜택 */}

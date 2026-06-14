@@ -23,7 +23,7 @@ export function PremiumGate({ children, feature = '이 기능' }: Props) {
         <div>
           <p className="font-bold text-gray-800 text-lg mb-1">{feature}은 프리미엄 전용입니다</p>
           <p className="text-sm text-gray-500">
-            {user ? '4,900원 일회성 결제 후 바로 이용 가능합니다.' : '로그인 후 이용해주세요.'}
+            {user ? '3,300원 일회성 결제 후 바로 이용 가능합니다.' : '로그인 후 이용해주세요.'}
           </p>
         </div>
         {user ? (
@@ -31,7 +31,7 @@ export function PremiumGate({ children, feature = '이 기능' }: Props) {
             onClick={() => setShowPayment(true)}
             className="bg-[#fee500] hover:bg-yellow-400 text-[#3c1e1e] font-bold px-6 py-3 rounded-xl transition-colors"
           >
-            프리미엄 구매하기 · 4,900원
+            프리미엄 구매하기 · 3,300원
           </button>
         ) : (
           <button

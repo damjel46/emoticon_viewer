@@ -143,7 +143,7 @@ export function Sidebar() {
               onClick={handlePremium}
               className="mb-2 w-full rounded-xl py-2 text-xs font-medium transition-colors text-white/40 hover:text-white/70"
             >
-              ⭐ 프리미엄 4,900원
+              ⭐ 프리미엄 3,300원
             </button>
           )}
           {user ? (
