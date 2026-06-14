@@ -63,7 +63,8 @@ export function PaymentModal({ onClose }: Props) {
           <ul className="w-full space-y-1">
             {[
               '이모티콘 세트 저장 · 클라우드 동기화',
-              '카카오톡 / Soop / 치지직 미리보기',
+              '카카오톡 / Soop 스토어 미리보기',
+              '광고 제거',
               'QR 공유 기능',
             ].map((item) => (
               <li key={item} className="flex items-center gap-2 text-[11px] text-gray-600">
