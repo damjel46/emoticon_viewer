@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Outlet, Navigate } from 'react-router-dom'
+import { Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
 import { Sidebar } from './components/shared/Sidebar'
 import { MobileLanding } from './components/shared/MobileLanding'
 import { useAuthStore } from './store/authStore'
@@ -8,6 +8,9 @@ import { GridPage } from './pages/GridPage'
 import { AnimationPage } from './pages/AnimationPage'
 import { QRPage } from './pages/QRPage'
 import { MobilePreviewPage } from './pages/MobilePreviewPage'
+import { MobileKakaoPage } from './pages/MobileKakaoPage'
+import { MobileSoopPage } from './pages/MobileSoopPage'
+import { MobileChzzkPage } from './pages/MobileChzzkPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { PaymentFailPage } from './pages/PaymentFailPage'
 import { PaymentCancelPage } from './pages/PaymentCancelPage'
@@ -28,9 +31,16 @@ function AppShell() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const init = useAuthStore((s) => s.init)
   const isMobile = useIsMobile()
+  const location = useLocation()
   useEffect(() => { init() }, [init])
 
-  if (isMobile) return <MobileLanding />
+  if (isMobile) {
+    const path = location.pathname
+    if (path === '/kakao' || path === '/') return <MobileKakaoPage />
+    if (path === '/soop') return <MobileSoopPage />
+    if (path === '/ogq') return <MobileChzzkPage />
+    return <MobileLanding />
+  }
 
   return (
     <div className="bg-gray-100 h-screen flex">
