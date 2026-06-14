@@ -38,7 +38,7 @@ export function MobileLanding() {
               >
                 <span className="text-3xl flex-shrink-0">{p.icon}</span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm text-gray-900">{p.name}</p>
+                  <p className="font-semibold text-sm text-gray-900">{p.nameKo}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
                 </div>
                 <span className="ml-auto text-gray-400 flex-shrink-0">›</span>

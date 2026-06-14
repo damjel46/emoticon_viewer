@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchShare } from '../utils/uploadShare'
-import type { ShareEmoticon } from '../types'
+import type { ShareEmoticon, EmoticonFile } from '../types'
 import { MobileStreamSimulator } from '../components/mobile/MobileStreamSimulator'
 import { MobileNaverBlogSimulator } from '../components/mobile/MobileNaverBlogSimulator'
 import { MobileNaverCafeSimulator } from '../components/mobile/MobileNaverCafeSimulator'
@@ -53,5 +53,5 @@ export function MobilePreviewPage() {
     return <MobileStreamSimulator emoticons={emoticons} platformId="ogq" />
   }
 
-  return <MobileKakaoPage emoticons={emoticons} />
+  return <MobileKakaoPage emoticons={emoticons as unknown as EmoticonFile[]} />
 }
