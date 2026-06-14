@@ -19,6 +19,14 @@ import { NaverBlogSimulator } from '../components/simulator/NaverBlogSimulator'
 import type { PlatformId } from '../config/platforms'
 import type { NaverSubMode } from '../store/platformStore'
 
+function textOnAccent(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#1a1a1a' : '#ffffff'
+}
+
 interface HelpNote {
   type: 'amber' | 'blue'
   title: string
@@ -285,8 +293,8 @@ export function SimulatorPage() {
           </button>
           <button
             onClick={() => inputRef.current?.click()}
-            className="text-sm font-semibold px-4 py-2 rounded-xl transition-colors text-gray-900"
-            style={{ backgroundColor: platformConfig.accentColor }}
+            className="text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+            style={{ backgroundColor: platformConfig.accentColor, color: textOnAccent(platformConfig.accentColor) }}
           >
             이모티콘 업로드
           </button>

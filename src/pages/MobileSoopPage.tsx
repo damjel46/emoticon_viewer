@@ -239,7 +239,7 @@ export function MobileSoopPage() {
           >
             <span
               className="text-base leading-none"
-              style={{ filter: pickerOpen ? 'brightness(10)' : 'none' }}
+              style={{ color: pickerOpen ? '#ffffff' : '#6b7280' }}
             >
               ⊞
             </span>
