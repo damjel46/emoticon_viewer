@@ -242,59 +242,6 @@ function SOOPChannelPreview({ emoticons }: { emoticons: EmoticonFile[] }) {
   )
 }
 
-// ── Naver OGQ ──────────────────────────────────────────────
-function OGQMarketPreview({ emoticons }: { emoticons: EmoticonFile[] }) {
-  return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 w-full max-w-sm mx-auto">
-      {/* OGQ 헤더 */}
-      <div className="px-4 py-3 flex items-center gap-3" style={{ backgroundColor: '#03c75a' }}>
-        <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center overflow-hidden">
-          {emoticons[0]
-            ? <img src={emoticons[0].dataUrl} alt="대표" className="w-full h-full object-contain" />
-            : <span className="text-3xl">🟢</span>}
-        </div>
-        <div>
-          <p className="font-bold text-white text-sm">나의 이모티콘 세트</p>
-          <p className="text-white/70 text-xs">OGQ 크리에이터</p>
-          <p className="text-white font-semibold text-sm mt-1">1,500원</p>
-        </div>
-      </div>
-
-      {/* 탭 */}
-      <div className="flex border-b text-xs font-medium" style={{ borderColor: '#e5e5e5' }}>
-        {['스티커', '작가 정보'].map((tab, i) => (
-          <div key={tab} className={`flex-1 text-center py-2.5 ${i === 0 ? 'border-b-2' : 'text-gray-400'}`}
-            style={i === 0 ? { borderColor: '#03c75a', color: '#03c75a' } : {}}>
-            {tab}
-          </div>
-        ))}
-      </div>
-
-      {/* 그리드 */}
-      <div className="p-3">
-        <div className="grid grid-cols-4 gap-1.5">
-          {emoticons.slice(0, 24).map((e, i) => (
-            <div key={e.id} className="aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src={e.dataUrl} alt={`${i + 1}`} className="w-full h-full object-contain p-0.5" />
-            </div>
-          ))}
-          {Array.from({ length: Math.max(0, 16 - emoticons.length) }).map((_, i) => (
-            <div key={`empty-${i}`} className="aspect-square bg-gray-50 rounded-lg flex items-center justify-center">
-              <span className="text-gray-300 text-xs">{emoticons.length + i + 1}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-3 pb-4">
-        <button className="w-full font-bold py-3 rounded-xl text-sm text-white transition-colors" style={{ backgroundColor: '#03c75a' }}>
-          구매하기
-        </button>
-      </div>
-    </div>
-  )
-}
-
 // ── Twitch ─────────────────────────────────────────────────
 function TwitchEmotePanel({ emoticons }: { emoticons: EmoticonFile[] }) {
   const tiers = ['Tier 1', 'Tier 2', 'Tier 3']
