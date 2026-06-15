@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Outlet, useLocation } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { Sidebar } from './components/shared/Sidebar'
 import { MobileLanding } from './components/shared/MobileLanding'
 import { useAuthStore } from './store/authStore'
+import { usePlatformStore } from './store/platformStore'
 import { PlatformPage } from './pages/PlatformPage'
+import { SimulatorPage } from './pages/SimulatorPage'
 import { GridPage } from './pages/GridPage'
 import { AnimationPage } from './pages/AnimationPage'
 import { QRPage } from './pages/QRPage'
@@ -16,6 +19,20 @@ import { PaymentFailPage } from './pages/PaymentFailPage'
 import { PaymentCancelPage } from './pages/PaymentCancelPage'
 import { TermsPage } from './pages/TermsPage'
 import { Footer } from './components/shared/Footer'
+
+function KakaoIndexPage() {
+  const setPlatform = usePlatformStore((s) => s.setPlatform)
+  useEffect(() => { setPlatform('kakao') }, [setPlatform])
+  return (
+    <>
+      <Helmet>
+        <title>카카오톡 이모티콘 미리보기 - 이모티콘 뷰어</title>
+        <meta name="description" content="카카오톡 이모티콘 제출 전 실제 채팅창에서 어떻게 보일지 무료로 미리 확인하세요." />
+      </Helmet>
+      <SimulatorPage />
+    </>
+  )
+}
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 600)
@@ -60,7 +77,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<AppShell />}>
-        <Route index element={<Navigate to="/kakao" replace />} />
+        <Route index element={<KakaoIndexPage />} />
         <Route path="grid" element={<GridPage />} />
         <Route path="anim" element={<AnimationPage />} />
         <Route path="qr" element={<QRPage />} />
