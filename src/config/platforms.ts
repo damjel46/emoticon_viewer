@@ -216,7 +216,7 @@ export const PLATFORMS: Record<PlatformId, PlatformConfig> = {
       defaultCount: 16,
       countOptions: [16, 24],
       gridColumns: 6,
-      shopPreviewLabel: '🛒 OGQ 마켓 미리보기',
+      shopPreviewLabel: '🛒 네이버 이모티콘 스토어',
       showShopPreview: true,
       showKeyboardTab: false,
     },

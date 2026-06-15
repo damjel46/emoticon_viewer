@@ -19,6 +19,8 @@ import { PaymentFailPage } from './pages/PaymentFailPage'
 import { PaymentCancelPage } from './pages/PaymentCancelPage'
 import { TermsPage } from './pages/TermsPage'
 import { Footer } from './components/shared/Footer'
+import { Toast } from './components/shared/Toast'
+import { useToastStore } from './store/toastStore'
 
 function KakaoIndexPage() {
   const setPlatform = usePlatformStore((s) => s.setPlatform)
@@ -48,28 +50,36 @@ function AppShell() {
   const init = useAuthStore((s) => s.init)
   const isMobile = useIsMobile()
   const location = useLocation()
+  const toast = useToastStore()
   useEffect(() => { init() }, [init])
+
+  const toastEl = toast.message ? (
+    <Toast message={toast.message} type={toast.type} onDismiss={toast.hide} />
+  ) : null
 
   if (isMobile) {
     const path = location.pathname
-    if (path === '/kakao' || path === '/') return <MobileKakaoPage />
-    if (path === '/soop') return <MobileSoopPage />
-    if (path === '/ogq') return <MobileChzzkPage />
+    if (path === '/kakao' || path === '/') return <><MobileKakaoPage />{toastEl}</>
+    if (path === '/soop') return <><MobileSoopPage />{toastEl}</>
+    if (path === '/ogq') return <><MobileChzzkPage />{toastEl}</>
     return <MobileLanding />
   }
 
   return (
-    <div className="bg-gray-100 h-dvh flex flex-col p-3 gap-2 overflow-hidden">
-      <div className="flex flex-1 max-w-[1440px] w-full mx-auto overflow-hidden font-kakao rounded-2xl shadow-lg border border-gray-200 min-h-0">
-        <Sidebar />
-        <main className="flex-1 overflow-hidden flex flex-col bg-white">
-          <Outlet />
-        </main>
+    <>
+      <div className="bg-gray-100 h-dvh flex flex-col p-3 gap-2 overflow-hidden">
+        <div className="flex flex-1 max-w-[1440px] w-full mx-auto overflow-hidden font-kakao rounded-2xl shadow-lg border border-gray-200 min-h-0">
+          <Sidebar />
+          <main className="flex-1 overflow-hidden flex flex-col bg-white">
+            <Outlet />
+          </main>
+        </div>
+        <div className="max-w-[1440px] w-full mx-auto flex-shrink-0">
+          <Footer />
+        </div>
       </div>
-      <div className="max-w-[1440px] w-full mx-auto flex-shrink-0">
-        <Footer />
-      </div>
-    </div>
+      {toastEl}
+    </>
   )
 }
 

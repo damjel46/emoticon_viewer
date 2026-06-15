@@ -2,10 +2,11 @@ import { useRef, useState, useEffect } from 'react'
 import { useEmoticonStore, useActiveEmoticons, useActiveThumbnailId, useActiveSetName } from '../store/emoticonStore'
 import { useAuthStore } from '../store/authStore'
 import { useProfileStore } from '../store/profileStore'
-import { OGQStorePreview, KakaoDualStorePreview } from '../components/grid/ShopPreview'
+import { OGQStorePreview, KakaoDualStorePreview, NaverEmoticonStorePreview } from '../components/grid/ShopPreview'
 import { usePlatformStore } from '../store/platformStore'
 import { useChatStore } from '../store/chatStore'
-import { fileToEmoticon } from '../utils/fileToEmoticon'
+import { convertFiles, MAX_FILE_SIZE_MB } from '../utils/fileToEmoticon'
+import { useToastStore } from '../store/toastStore'
 import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
 import { ChatInput } from '../components/simulator/ChatInput'
@@ -187,7 +188,7 @@ export function SimulatorPage() {
   const thumbnailId = useActiveThumbnailId()
   const activeSetName = useActiveSetName()
   const user = useAuthStore((s) => s.user)
-  const displayName = useProfileStore((s) => s.displayName)
+const displayName = useProfileStore((s) => s.displayName)
   const creatorName = displayName || (user?.email?.split('@')[0] ?? '나의 크리에이터')
 
   const [panelOpen, setPanelOpen] = useState(false)
@@ -203,13 +204,16 @@ export function SimulatorPage() {
     : platformConfig.spec
   const acceptAttr = activeSpec.allowedTypes.join(',')
 
+  const showToast = useToastStore((s) => s.show)
+
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     const config = usePlatformStore.getState().getConfig()
     const miniMode = useChatStore.getState().miniEmoticonMode
     const spec = miniMode && config.miniSpec ? config.miniSpec : config.spec
-    const converted = await Promise.all(files.map((f) => fileToEmoticon(f, spec)))
-    addEmoticons(converted)
+    const { emoticons, rejectedCount } = await convertFiles(files, spec)
+    addEmoticons(emoticons)
+    if (rejectedCount > 0) showToast(`${rejectedCount}개 파일이 ${MAX_FILE_SIZE_MB}MB를 초과해 건너뛰었습니다.`, 'warning')
     e.target.value = ''
   }
 
@@ -281,6 +285,30 @@ export function SimulatorPage() {
               ))}
             </div>
           )}
+
+          {/* 네이버 스토어 탭 */}
+          {activePlatform === 'ogq' && (
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+              <button
+                onClick={() => { setOgqOpen(false); setPanelOpen(false) }}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                style={!ogqOpen
+                  ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+                  : { color: '#6b7280' }}
+              >
+                💬 채팅
+              </button>
+              <button
+                onClick={() => { setOgqOpen(true); setPanelOpen(false) }}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                style={ogqOpen
+                  ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+                  : { color: '#6b7280' }}
+              >
+                🛒 이모티콘 스토어
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -303,7 +331,7 @@ export function SimulatorPage() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* 카카오 이모티콘 스토어 */}
+        {/* 스토어 미리보기 */}
         {activePlatform === 'kakao' && ogqOpen ? (
           <div className="flex-1 overflow-y-auto bg-white">
             <KakaoDualStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} creatorName={creatorName} />
@@ -311,6 +339,10 @@ export function SimulatorPage() {
         ) : activePlatform === 'soop' && ogqOpen ? (
           <div className="flex-1 overflow-y-auto bg-white">
             <OGQStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} creatorName={creatorName} />
+          </div>
+        ) : activePlatform === 'ogq' && ogqOpen ? (
+          <div className="flex-1 overflow-y-auto bg-white">
+            <NaverEmoticonStorePreview emoticons={activeEmoticons} thumbnailId={thumbnailId} setName={activeSetName} />
           </div>
         ) : (
           <>

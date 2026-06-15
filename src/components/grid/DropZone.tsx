@@ -2,7 +2,8 @@ import { useRef } from 'react'
 import { useDropZone } from '../../hooks/useDropZone'
 import { useEmoticonStore, useActiveEmoticons } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
-import { fileToEmoticon } from '../../utils/fileToEmoticon'
+import { convertFiles, MAX_FILE_SIZE_MB } from '../../utils/fileToEmoticon'
+import { useToastStore } from '../../store/toastStore'
 import clsx from 'clsx'
 
 export function DropZone() {
@@ -26,11 +27,15 @@ export function DropZone() {
         ? `${spec.minSetCount}종 이상`
         : '제한 없음'
 
+  const showToast = useToastStore((s) => s.show)
+
   const handleFiles = async (files: File[]) => {
-    const converted = await Promise.all(
-      files.map((f) => fileToEmoticon(f, usePlatformStore.getState().getConfig().spec))
-    )
-    addEmoticons(converted)
+    const spec = usePlatformStore.getState().getConfig().spec
+    const { emoticons, rejectedCount } = await convertFiles(files, spec)
+    addEmoticons(emoticons)
+    if (rejectedCount > 0) {
+      showToast(`${rejectedCount}개 파일이 ${MAX_FILE_SIZE_MB}MB를 초과해 건너뛰었습니다.`, 'warning')
+    }
   }
 
   const { isDragging, onDragOver, onDragLeave, onDrop, onInputChange } = useDropZone({
@@ -62,7 +67,7 @@ export function DropZone() {
           이미지를 드래그하거나 클릭하여 업로드
         </p>
         <p className="text-sm text-gray-400">
-          {formatList} 지원 · {sizeHint} · {countHint}
+          {formatList} 지원 · {sizeHint} · {countHint} · 개당 {MAX_FILE_SIZE_MB}MB 이하
         </p>
         <input
           ref={inputRef}
