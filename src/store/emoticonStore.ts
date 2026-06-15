@@ -154,9 +154,10 @@ export const useEmoticonStore = create<EmoticonState>()(
           }
         }
 
+        // Always prefer cloud set IDs — local IDs may not match cloud sets
         const newActiveSetId: ActiveSetIds = { ...currentState.activeSetId }
         for (const [pid, sets] of Object.entries(cloudByPlatform)) {
-          if (sets && sets.length > 0 && !newActiveSetId[pid as PlatformId]) {
+          if (sets && sets.length > 0) {
             newActiveSetId[pid as PlatformId] = sets[0].id
           }
         }

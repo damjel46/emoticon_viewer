@@ -24,7 +24,7 @@ export function GridPage() {
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
         <div>
-          <h1 className="text-lg font-bold text-gray-800">그리드 콜라주 & 미리보기</h1>
+          <h1 className="text-lg font-bold text-gray-800">업로드</h1>
           <p className="text-xs text-gray-400 mt-0.5">
             {nameShort} 이모티콘 세트의 색감과 균형을 확인하세요
           </p>
