@@ -5,7 +5,8 @@ import { useProfileStore } from '../store/profileStore'
 import { OGQStorePreview, KakaoDualStorePreview } from '../components/grid/ShopPreview'
 import { usePlatformStore } from '../store/platformStore'
 import { useChatStore } from '../store/chatStore'
-import { fileToEmoticon } from '../utils/fileToEmoticon'
+import { convertFiles, MAX_FILE_SIZE_MB } from '../utils/fileToEmoticon'
+import { useToastStore } from '../store/toastStore'
 import { ThemeToolbar } from '../components/simulator/ThemeToolbar'
 import { ChatSimulator } from '../components/simulator/ChatSimulator'
 import { ChatInput } from '../components/simulator/ChatInput'
@@ -203,13 +204,16 @@ export function SimulatorPage() {
     : platformConfig.spec
   const acceptAttr = activeSpec.allowedTypes.join(',')
 
+  const showToast = useToastStore((s) => s.show)
+
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     const config = usePlatformStore.getState().getConfig()
     const miniMode = useChatStore.getState().miniEmoticonMode
     const spec = miniMode && config.miniSpec ? config.miniSpec : config.spec
-    const converted = await Promise.all(files.map((f) => fileToEmoticon(f, spec)))
-    addEmoticons(converted)
+    const { emoticons, rejectedCount } = await convertFiles(files, spec)
+    addEmoticons(emoticons)
+    if (rejectedCount > 0) showToast(`${rejectedCount}개 파일이 ${MAX_FILE_SIZE_MB}MB를 초과해 건너뛰었습니다.`, 'warning')
     e.target.value = ''
   }
 

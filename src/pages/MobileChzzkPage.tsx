@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useActiveEmoticons, useEmoticonStore } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
 import { useAuthStore } from '../store/authStore'
-import { fileToEmoticon } from '../utils/fileToEmoticon'
+import { convertFiles, MAX_FILE_SIZE_MB } from '../utils/fileToEmoticon'
+import { useToastStore } from '../store/toastStore'
 import { MobileChatInput, type MobileChatInputHandle } from '../components/mobile/MobileChatInput'
 import { MobilePlatformTabs } from '../components/mobile/MobilePlatformTabs'
 import { LoginModal } from '../components/auth/LoginModal'
@@ -68,11 +69,14 @@ export function MobileChzzkPage() {
     setSyncing(false)
   }
 
+  const showToast = useToastStore((s) => s.show)
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
-    const converted = await Promise.all(files.map((f) => fileToEmoticon(f)))
-    addEmoticons(converted)
+    const { emoticons, rejectedCount } = await convertFiles(files)
+    addEmoticons(emoticons)
+    if (rejectedCount > 0) showToast(`${rejectedCount}개 파일이 ${MAX_FILE_SIZE_MB}MB를 초과해 건너뛰었습니다.`, 'warning')
     e.target.value = ''
   }
 
