@@ -336,7 +336,22 @@ export const useEmoticonStore = create<EmoticonState>()(
         }
       },
     }),
-    { name: 'emoticons-v3' }
+    {
+      name: 'emoticons-v3',
+      // base64 dataUrls are too large for localStorage — only persist storage URLs
+      partialize: (state) => ({
+        activeSetId: state.activeSetId,
+        byPlatform: Object.fromEntries(
+          Object.entries(state.byPlatform).map(([pid, sets]) => [
+            pid,
+            (sets ?? []).map((set) => ({
+              ...set,
+              emoticons: set.emoticons.filter((e) => !e.dataUrl.startsWith('data:')),
+            })),
+          ])
+        ),
+      }),
+    }
   )
 )
 
