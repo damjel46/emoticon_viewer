@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useActiveEmoticons } from '../../store/emoticonStore'
+import { useActiveEmoticons, useActiveThumbnailId, useActiveSetName } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
+import { useAuthStore } from '../../store/authStore'
 import type { EmoticonFile } from '../../types'
 
 // ── Kakao Store Preview ────────────────────────────────────
@@ -576,16 +577,229 @@ export function KakaoDualStorePreview({ emoticons, thumbnailId, setName, creator
   )
 }
 
+// ── Naver Emoticon Store ────────────────────────────────────
+const NAVER_GREEN = '#03c75a'
+
+const NAVER_SERVICES = [
+  { label: '블로그', abbr: '블' }, { label: '카페', abbr: '카' },
+  { label: '게임', abbr: '게' }, { label: '오픈독', abbr: '독' },
+  { label: '네이버북', abbr: '북' }, { label: '스포츠', abbr: '스' },
+  { label: '클립', abbr: '클' }, { label: '치지직', abbr: '치' },
+  { label: '라운지', abbr: '라' },
+]
+
+export function NaverEmoticonStorePreview({ emoticons, thumbnailId, setName }: {
+  emoticons: EmoticonFile[]
+  thumbnailId?: string
+  setName?: string
+}) {
+  const [selectedId, setSelectedId] = useState<string | null>(
+    thumbnailId ?? emoticons[0]?.id ?? null
+  )
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [hoverKey, setHoverKey] = useState(0)
+  const [darkMode, setDarkMode] = useState(false)
+  const [notesOpen, setNotesOpen] = useState(false)
+
+  const featured = emoticons.find((e) => e.id === (hoveredId ?? selectedId)) ?? emoticons[0] ?? null
+  const empties = Math.max(0, 16 - emoticons.length)
+
+  const handleHover = (id: string) => { setHoveredId(id); setHoverKey((k) => k + 1) }
+
+  return (
+    <div className="w-full bg-white">
+      {/* 상단: 왼쪽 대표 이미지 + 오른쪽 정보 패널 */}
+      <div className="flex">
+        {/* 대표 이모티콘 영역 */}
+        <div
+          className="flex-1 flex items-center justify-center"
+          style={{ minHeight: 320, backgroundColor: '#f7f8fa' }}
+        >
+          {featured
+            ? <img
+                key={hoveredId ? `${featured.id}-${hoverKey}` : featured.id}
+                src={featured.dataUrl}
+                alt="대표"
+                className="w-48 h-48 object-contain"
+                draggable={false}
+              />
+            : <span className="text-6xl">🖼️</span>}
+        </div>
+
+        {/* 정보 패널 */}
+        <div className="w-[380px] flex-shrink-0 px-6 py-6 border-l border-gray-100 overflow-y-auto" style={{ maxHeight: 520 }}>
+          <h2 className="text-xl font-bold text-gray-900 leading-snug mb-4">
+            {setName ?? '나의 이모티콘 세트'}
+          </h2>
+
+          {/* 가격 + 라이선스 */}
+          <div className="flex items-center gap-3 mb-1.5">
+            <span className="text-2xl font-black text-gray-900">1,500원</span>
+            <span className="text-[11px] border border-gray-300 text-gray-600 px-2 py-1 rounded">스트리밍 라이선스</span>
+          </div>
+          <p className="text-[11px] text-gray-500 mb-5">네이버 서비스가 존속하는 한 지속적인 사용 보장</p>
+
+          {/* 구매 버튼 */}
+          <button
+            className="w-full py-3.5 rounded text-white font-bold text-sm mb-3 flex items-center justify-center gap-2"
+            style={{ backgroundColor: NAVER_GREEN }}
+          >
+            <span
+              className="w-5 h-5 rounded-sm flex items-center justify-center text-[11px] font-black"
+              style={{ backgroundColor: '#fff', color: NAVER_GREEN }}
+            >N</span>
+            구매하기
+          </button>
+
+          {/* 선물 + 장바구니 */}
+          <div className="flex gap-2 mb-6">
+            <button className="flex-1 py-2.5 border border-gray-200 rounded text-sm font-medium text-gray-700 flex items-center justify-center gap-1">
+              🎁 선물하기
+            </button>
+            <button className="flex-1 py-2.5 border border-gray-200 rounded text-sm font-medium text-gray-700 flex items-center justify-center gap-1">
+              🛒 장바구니
+            </button>
+          </div>
+
+          {/* 네이버 사용처 */}
+          <p className="text-sm font-bold text-gray-800 mb-3">네이버 사용처 안내</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-3 mb-5">
+            {NAVER_SERVICES.map((s) => (
+              <div key={s.label} className="flex flex-col items-center gap-1">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: NAVER_GREEN }}
+                >
+                  {s.abbr}
+                </div>
+                <span className="text-[10px] text-gray-600">{s.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* 안내 문구 */}
+          <ul className="space-y-1.5 mb-4">
+            {[
+              '안내된 네이버 사용처에서 이용 가능하며, 사용처 및 이용 환경에 따라 사용 방법이 일부분 상이할 수 있습니다.',
+              '구매한 스티커의 노출 순서는 \'마이페이지 > 스티커 순서 변경\'에서 설정 가능합니다.',
+              '미사용한 콘텐츠에 한하여 구매일로부터 7일 이내에 환불 신청이 가능합니다.',
+            ].map((text, i) => (
+              <li key={i} className="flex items-start gap-1.5">
+                <span className="text-gray-400 text-xs mt-0.5 flex-shrink-0">•</span>
+                <span className="text-[11px] text-gray-500 leading-snug">{text}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* 주의사항 */}
+          <button
+            className="flex items-center justify-between w-full py-2.5 border-t border-gray-100 text-sm font-bold text-gray-800"
+            onClick={() => setNotesOpen((v) => !v)}
+          >
+            주의사항
+            <span className="text-gray-400 text-base">{notesOpen ? '∧' : '∨'}</span>
+          </button>
+          {notesOpen && (
+            <p className="pt-2 pb-1 text-[11px] text-gray-500 leading-snug">
+              본 콘텐츠는 상업적 이용 및 무단 도용 등의 사용 시 법적 조치를 받을 수 있습니다.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* 다크모드 토글 바 */}
+      <div
+        className="flex items-center justify-between px-5 py-3 border-t border-b"
+        style={darkMode
+          ? { backgroundColor: '#1a1a1a', borderColor: '#333' }
+          : { backgroundColor: '#f7f8fa', borderColor: '#e5e5e5' }}
+      >
+        <span className="text-[12px]" style={{ color: darkMode ? '#999' : '#555' }}>
+          다크모드 화면에서 보기
+        </span>
+        <button
+          onClick={() => setDarkMode((v) => !v)}
+          className="w-10 h-5 rounded-full relative flex-shrink-0 transition-colors duration-200"
+          style={{ backgroundColor: darkMode ? NAVER_GREEN : '#ccc' }}
+        >
+          <div
+            className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200"
+            style={{ left: darkMode ? '22px' : '2px' }}
+          />
+        </button>
+      </div>
+
+      {/* 이모티콘 그리드 */}
+      <div className="p-4 transition-colors duration-200" style={{ backgroundColor: darkMode ? '#111' : '#fff' }}>
+        <div className="grid grid-cols-4 gap-2">
+          {emoticons.map((e) => {
+            const isHovered = hoveredId === e.id
+            const isDimmed = hoveredId !== null && !isHovered
+            const isSelected = selectedId === e.id
+            return (
+              <div
+                key={e.id}
+                className="aspect-square flex items-center justify-center cursor-pointer rounded-xl transition-all duration-150"
+                style={{
+                  opacity: isDimmed ? 0.25 : 1,
+                  outline: isSelected && !hoveredId ? `2px solid ${NAVER_GREEN}` : 'none',
+                  outlineOffset: '-2px',
+                  transform: isHovered ? 'scale(1.2)' : 'scale(1)',
+                  zIndex: isHovered ? 10 : 'auto',
+                  position: 'relative',
+                  backgroundColor: darkMode ? '#1a1a1a' : '#f7f8fa',
+                }}
+                onMouseEnter={() => handleHover(e.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                onClick={() => setSelectedId(e.id)}
+              >
+                <img
+                  key={isHovered ? `${e.id}-${hoverKey}` : e.id}
+                  src={e.dataUrl}
+                  alt=""
+                  className="w-full h-full object-contain p-1.5"
+                  draggable={false}
+                />
+              </div>
+            )
+          })}
+          {Array.from({ length: empties }).map((_, i) => (
+            <div
+              key={`empty-${i}`}
+              className="aspect-square rounded-xl"
+              style={{ backgroundColor: darkMode ? '#1a1a1a' : '#f7f8fa' }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Router ─────────────────────────────────────────────────
 export function ShopPreview() {
   const emoticons = useActiveEmoticons()
+  const thumbnailId = useActiveThumbnailId()
+  const setName = useActiveSetName()
   const platformId = usePlatformStore((s) => s.activePlatform)
+  const profile = useAuthStore((s) => s.profile)
+
+  if (platformId === 'ogq') {
+    if (!profile?.is_premium) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-4 py-16 px-8 text-center">
+          <span className="text-5xl">⭐</span>
+          <p className="font-bold text-gray-800 text-lg">네이버 이모티콘 스토어 미리보기는 프리미엄 전용입니다</p>
+          <p className="text-sm text-gray-500">3,300원 일회성 결제 후 이용 가능합니다.</p>
+        </div>
+      )
+    }
+    return <NaverEmoticonStorePreview emoticons={emoticons} thumbnailId={thumbnailId} setName={setName} />
+  }
 
   switch (platformId) {
     case 'soop':
       return <SOOPChannelPreview emoticons={emoticons} />
-    case 'ogq':
-      return <OGQMarketPreview emoticons={emoticons} />
     case 'twitch':
       return <TwitchEmotePanel emoticons={emoticons} />
     case 'kakao':
