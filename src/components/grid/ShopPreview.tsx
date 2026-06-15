@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useActiveEmoticons, useActiveThumbnailId, useActiveSetName } from '../../store/emoticonStore'
 import { usePlatformStore } from '../../store/platformStore'
-import { useAuthStore } from '../../store/authStore'
 import type { EmoticonFile } from '../../types'
 
 // ── Kakao Store Preview ────────────────────────────────────
@@ -729,18 +728,8 @@ export function ShopPreview() {
   const thumbnailId = useActiveThumbnailId()
   const setName = useActiveSetName()
   const platformId = usePlatformStore((s) => s.activePlatform)
-  const profile = useAuthStore((s) => s.profile)
 
   if (platformId === 'ogq') {
-    if (!profile?.is_premium) {
-      return (
-        <div className="flex flex-col items-center justify-center gap-4 py-16 px-8 text-center">
-          <span className="text-5xl">⭐</span>
-          <p className="font-bold text-gray-800 text-lg">네이버 이모티콘 스토어 미리보기는 프리미엄 전용입니다</p>
-          <p className="text-sm text-gray-500">3,300원 일회성 결제 후 이용 가능합니다.</p>
-        </div>
-      )
-    }
     return <NaverEmoticonStorePreview emoticons={emoticons} thumbnailId={thumbnailId} setName={setName} />
   }
 

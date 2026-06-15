@@ -3,7 +3,6 @@ import { useEmoticonStore, useActiveEmoticons, useActiveThumbnailId, useActiveSe
 import { useAuthStore } from '../store/authStore'
 import { useProfileStore } from '../store/profileStore'
 import { OGQStorePreview, KakaoDualStorePreview, NaverEmoticonStorePreview } from '../components/grid/ShopPreview'
-import { PaymentModal } from '../components/auth/PaymentModal'
 import { usePlatformStore } from '../store/platformStore'
 import { useChatStore } from '../store/chatStore'
 import { convertFiles, MAX_FILE_SIZE_MB } from '../utils/fileToEmoticon'
@@ -189,13 +188,11 @@ export function SimulatorPage() {
   const thumbnailId = useActiveThumbnailId()
   const activeSetName = useActiveSetName()
   const user = useAuthStore((s) => s.user)
-  const profile = useAuthStore((s) => s.profile)
-  const displayName = useProfileStore((s) => s.displayName)
+const displayName = useProfileStore((s) => s.displayName)
   const creatorName = displayName || (user?.email?.split('@')[0] ?? '나의 크리에이터')
 
   const [panelOpen, setPanelOpen] = useState(false)
   const [ogqOpen, setOgqOpen] = useState(false)
-  const [showPayment, setShowPayment] = useState(false)
   const platformConfig = usePlatformStore((s) => s.getConfig())
   const activePlatform = usePlatformStore((s) => s.activePlatform)
 
@@ -302,18 +299,13 @@ export function SimulatorPage() {
                 💬 채팅
               </button>
               <button
-                onClick={() => {
-                  if (!user) return
-                  if (!profile?.is_premium) { setShowPayment(true); return }
-                  setOgqOpen(true); setPanelOpen(false)
-                }}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                onClick={() => { setOgqOpen(true); setPanelOpen(false) }}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
                 style={ogqOpen
                   ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
                   : { color: '#6b7280' }}
               >
                 🛒 이모티콘 스토어
-                {!profile?.is_premium && <span className="text-[10px]">⭐</span>}
               </button>
             </div>
           )}
@@ -415,7 +407,6 @@ export function SimulatorPage() {
           </>
         )}
       </div>
-      {showPayment && <PaymentModal onClose={() => setShowPayment(false)} />}
     </div>
   )
 }
