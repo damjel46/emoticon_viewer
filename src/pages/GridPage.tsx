@@ -21,7 +21,7 @@ export function GridPage() {
   }, [grid.defaultCount])
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-lg font-bold text-gray-800">그리드 콜라주 & 미리보기</h1>

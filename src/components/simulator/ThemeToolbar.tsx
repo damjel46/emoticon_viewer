@@ -27,43 +27,39 @@ export function ThemeToolbar() {
   }
 
   return (
-    <div className="flex flex-col gap-2 px-4 py-3 bg-white border-b border-gray-100">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-gray-500">테마:</span>
-        {platformThemes.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTheme(t.key)}
-            className={clsx(
-              'px-3 py-1 rounded-full text-xs font-medium border-2 transition-all',
-              activeTheme === t.key
-                ? 'shadow-sm scale-105'
-                : 'border-transparent hover:border-gray-300'
-            )}
-            style={{
-              backgroundColor: t.bgColor,
-              color: t.textColor,
-              borderColor: activeTheme === t.key ? accentColor : undefined,
-            }}
-          >
-            {t.labelKo}
-          </button>
-        ))}
-        {hasCustomTheme && activeTheme === 'custom' && (
-          <div className="flex items-center gap-1.5 ml-1">
-            <label className="text-xs text-gray-500">배경색:</label>
-            <input
-              type="color"
-              value={customBgColor}
-              onChange={(e) => setCustomBg(e.target.value)}
-              className="w-7 h-7 rounded cursor-pointer border border-gray-200"
-            />
-          </div>
-        )}
-      </div>
-      <div className="flex items-center gap-3 flex-wrap">
-        <ContrastBadge bgColor={theme.bgColor} />
-      </div>
+    <div className="flex items-center gap-2 flex-wrap px-4 py-2.5 bg-white border-b border-gray-100">
+      <span className="text-xs font-semibold text-gray-500">테마:</span>
+      {platformThemes.map((t) => (
+        <button
+          key={t.key}
+          onClick={() => setTheme(t.key)}
+          className={clsx(
+            'px-3 py-1 rounded-full text-xs font-medium border-2 transition-all',
+            activeTheme === t.key
+              ? 'shadow-sm scale-105'
+              : 'border-transparent hover:border-gray-300'
+          )}
+          style={{
+            backgroundColor: t.bgColor,
+            color: t.textColor,
+            borderColor: activeTheme === t.key ? accentColor : undefined,
+          }}
+        >
+          {t.labelKo}
+        </button>
+      ))}
+      {hasCustomTheme && activeTheme === 'custom' && (
+        <div className="flex items-center gap-1.5 ml-1">
+          <label className="text-xs text-gray-500">배경색:</label>
+          <input
+            type="color"
+            value={customBgColor}
+            onChange={(e) => setCustomBg(e.target.value)}
+            className="w-7 h-7 rounded cursor-pointer border border-gray-200"
+          />
+        </div>
+      )}
+      <ContrastBadge bgColor={theme.bgColor} />
     </div>
   )
 }

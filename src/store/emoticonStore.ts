@@ -6,6 +6,31 @@ import { usePlatformStore } from './platformStore'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from './authStore'
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, data] = dataUrl.split(',')
+  const mimeType = header.match(/:(.*?);/)?.[1] ?? 'application/octet-stream'
+  const binary = atob(data)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return new Blob([bytes], { type: mimeType })
+}
+
+async function uploadEmoticonToStorage(
+  userId: string,
+  setId: string,
+  emoticon: EmoticonFile
+): Promise<string> {
+  const ext = emoticon.mimeType.split('/')[1]
+  const path = `${userId}/${setId}/${emoticon.id}.${ext}`
+  const blob = dataUrlToBlob(emoticon.dataUrl)
+  const { error } = await supabase.storage
+    .from('emoticon-images')
+    .upload(path, blob, { upsert: true, contentType: emoticon.mimeType })
+  if (error) throw error
+  const { data: { publicUrl } } = supabase.storage.from('emoticon-images').getPublicUrl(path)
+  return publicUrl
+}
+
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
   const result = [...arr]
   const [item] = result.splice(from, 1)
@@ -29,16 +54,26 @@ async function syncSetToCloud(
   targetSet: EmoticonSet,
   order: number
 ): Promise<void> {
-  await supabase.from('emoticon_sets').upsert({
+  // Upload base64 images to storage; already-uploaded URLs pass through
+  const emoticonsMeta = await Promise.all(
+    targetSet.emoticons.map(async (e) => {
+      if (!e.dataUrl.startsWith('data:')) return e  // already a URL
+      const publicUrl = await uploadEmoticonToStorage(userId, targetSet.id, e)
+      return { ...e, dataUrl: publicUrl }
+    })
+  )
+
+  const { error } = await supabase.from('emoticon_sets').upsert({
     id: targetSet.id,
     user_id: userId,
     platform_id: platformId,
     name: targetSet.name,
-    emoticons: targetSet.emoticons,
+    emoticons: emoticonsMeta,
     thumbnail_id: targetSet.thumbnailId ?? null,
     display_order: order,
     updated_at: new Date().toISOString(),
   })
+  if (error) throw error
 }
 
 async function deleteSetFromCloud(setId: string): Promise<void> {
@@ -90,7 +125,8 @@ export const useEmoticonStore = create<EmoticonState>()(
           .eq('user_id', userId)
           .order('display_order', { ascending: true })
 
-        if (error || !data) return
+        if (error) throw error
+        if (!data) return
 
         const cloudByPlatform: ByPlatform = {}
         for (const row of data) {

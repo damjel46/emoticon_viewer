@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useProfileStore } from '../../store/profileStore'
@@ -10,29 +10,6 @@ import { ProfileModal } from '../auth/ProfileModal'
 import { PaymentModal } from '../auth/PaymentModal'
 import { PlatformLogo } from './PlatformLogo'
 
-declare global { interface Window { adsbygoogle: unknown[] } }
-
-function SidebarAd() {
-  const ref = useRef<HTMLModElement>(null)
-  useEffect(() => {
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({})
-    } catch {}
-  }, [])
-  return (
-    <div className="mx-1 mb-3">
-      <ins
-        ref={ref}
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-5497677824149260"
-        data-ad-slot="6490827669"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
-    </div>
-  )
-}
 
 const NAV_ITEMS = [
   { to: '/grid', label: '업로드', icon: '📂' },
@@ -45,10 +22,13 @@ export function Sidebar() {
   const profile = useAuthStore((s) => s.profile)
   const displayName = useProfileStore((s) => s.displayName)
   const saveAllToCloud = useEmoticonStore((s) => s.saveAllToCloud)
+  const loadFromCloud = useEmoticonStore((s) => s.loadFromCloud)
   const [showLogin, setShowLogin] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'ok' | 'err'>('idle')
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -65,8 +45,27 @@ export function Sidebar() {
     if (!user) { setShowLogin(true); return }
     if (!profile?.is_premium) { setShowPayment(true); return }
     setSaving(true)
-    await saveAllToCloud(user.id)
-    setSaving(false)
+    setSaveStatus('idle')
+    try {
+      await saveAllToCloud(user.id)
+      setSaveStatus('ok')
+    } catch {
+      setSaveStatus('err')
+    } finally {
+      setSaving(false)
+      setTimeout(() => setSaveStatus('idle'), 2500)
+    }
+  }
+
+  const handleLoad = async () => {
+    if (!user) { setShowLogin(true); return }
+    if (!profile?.is_premium) { setShowPayment(true); return }
+    setLoading(true)
+    try {
+      await loadFromCloud(user.id)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const avatarLetter = user?.email?.[0]?.toUpperCase() ?? '?'
@@ -74,7 +73,7 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="h-full w-56 px-3 bg-[#3c1e1e] flex flex-col py-6 flex-shrink-0">
+      <aside className="w-56 px-3 bg-[#3c1e1e] flex flex-col py-6 flex-shrink-0 overflow-hidden">
         {/* 로고 */}
         <div className="mb-5 px-2">
           <div className="font-bold text-lg leading-tight" style={{ color: accentColor }}>
@@ -144,19 +143,26 @@ export function Sidebar() {
           ))}
         </nav>
 
-        {/* 광고 */}
-        <SidebarAd />
-
         {/* 유저 영역 */}
         <div className="mt-4 border-t border-white/10 pt-3">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="mb-2 w-full rounded-xl py-2 text-xs font-semibold transition-colors disabled:opacity-50"
-            style={{ backgroundColor: saving ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.12)', color: '#ffffff' }}
-          >
-            {saving ? '저장 중...' : '💾 세트 저장'}
-          </button>
+          <div className="flex gap-1.5 mb-2">
+            <button
+              onClick={handleSave}
+              disabled={saving || loading}
+              className="flex-1 rounded-xl py-2 text-xs font-semibold transition-colors disabled:opacity-50"
+              style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: '#ffffff' }}
+            >
+              {saving ? '저장 중...' : saveStatus === 'ok' ? '✓ 저장됨' : saveStatus === 'err' ? '✕ 실패' : '💾 저장'}
+            </button>
+            <button
+              onClick={handleLoad}
+              disabled={saving || loading}
+              className="flex-1 rounded-xl py-2 text-xs font-semibold transition-colors disabled:opacity-50"
+              style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: '#ffffff' }}
+            >
+              {loading ? '불러오는 중...' : '☁️ 불러오기'}
+            </button>
+          </div>
           {!profile?.is_premium && (
             <button
               onClick={handlePremium}

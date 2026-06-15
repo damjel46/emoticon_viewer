@@ -214,7 +214,7 @@ export function SimulatorPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       {/* 헤더 */}
       <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between gap-4 flex-shrink-0">
         <div className="flex items-center gap-4 flex-1 min-w-0">

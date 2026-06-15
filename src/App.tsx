@@ -42,14 +42,14 @@ function AppShell() {
   }
 
   return (
-    <div className="bg-gray-100 h-screen flex flex-col p-3 gap-2">
+    <div className="bg-gray-100 h-dvh flex flex-col p-3 gap-2 overflow-hidden">
       <div className="flex flex-1 max-w-[1440px] w-full mx-auto overflow-hidden font-kakao rounded-2xl shadow-lg border border-gray-200 min-h-0">
         <Sidebar />
         <main className="flex-1 overflow-hidden flex flex-col bg-white">
           <Outlet />
         </main>
       </div>
-      <div className="max-w-[1440px] w-full mx-auto">
+      <div className="max-w-[1440px] w-full mx-auto flex-shrink-0">
         <Footer />
       </div>
     </div>

@@ -33,7 +33,7 @@ export function PaymentModal({ onClose }: Props) {
       {/* 8:7 비율 박스 */}
       <div
         className="relative bg-white rounded-2xl shadow-2xl w-full flex flex-col overflow-hidden"
-        style={{ maxWidth: '360px', aspectRatio: '8 / 7' }}
+        style={{ maxWidth: '360px', maxHeight: '90dvh' }}
       >
         {/* 닫기 */}
         <button

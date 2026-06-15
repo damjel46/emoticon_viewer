@@ -7,7 +7,7 @@ export function QRPage() {
   const [shareUrl, setShareUrl] = useState('')
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
       <div className="px-6 py-4 border-b border-gray-100 flex-shrink-0">
         <h1 className="text-lg font-bold text-gray-800">모바일 QR 코드 연동</h1>
         <p className="text-xs text-gray-400 mt-0.5">QR 코드를 스캔해 스마트폰에서 이모티콘을 확인하세요</p>

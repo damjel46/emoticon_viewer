@@ -42,7 +42,7 @@ export function AnimationPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
       <div className="px-6 py-4 border-b border-gray-100 flex-shrink-0">
         <h1 className="text-lg font-bold text-gray-800">애니메이션 컨트롤러</h1>
         <p className="text-xs text-gray-400 mt-0.5">GIF/WEBP/PNG 파일의 재생 속도와 프레임을 검사합니다</p>
