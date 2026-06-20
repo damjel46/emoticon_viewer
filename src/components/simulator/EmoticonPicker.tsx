@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useActiveEmoticons } from '../../store/emoticonStore'
+import { useActiveEmoticons, useActiveThumbnailId } from '../../store/emoticonStore'
 import clsx from 'clsx'
 
 function SmileyIcon() {
@@ -60,6 +60,8 @@ export function EmoticonPicker({
   packName,
 }: Props) {
   const emoticons = useActiveEmoticons()
+  const thumbnailId = useActiveThumbnailId()
+  const packIcon = emoticons.find((e) => e.id === thumbnailId) ?? emoticons[0]
   const [kakaoTab, setKakaoTab] = useState<KakaoTab>('emoticon')
   const [naverTab, setNaverTab] = useState<NaverTab>('all')
   const [youtubeTab, setYoutubeTab] = useState<YouTubeTab>('pack')
@@ -224,9 +226,9 @@ export function EmoticonPicker({
             <button className="flex-none w-9 h-9 rounded-lg flex items-center justify-center text-yellow-400 border-2 border-yellow-400 bg-yellow-50">
               <StarIcon />
             </button>
-            {emoticons.length > 0 && (
+            {packIcon && (
               <button className="flex-none w-9 h-9 rounded-lg border-2 border-transparent hover:border-gray-200 overflow-hidden bg-gray-50 p-0.5">
-                <img src={emoticons[0].dataUrl} alt="팩" className="w-full h-full object-contain" />
+                <img src={packIcon.dataUrl} alt="팩" className="w-full h-full object-contain" />
               </button>
             )}
           </div>
@@ -415,8 +417,8 @@ export function EmoticonPicker({
             )}
             title="이모티콘"
           >
-            {emoticons.length > 0
-              ? <img src={emoticons[0].dataUrl} alt="팩" className="w-6 h-6 object-contain rounded" />
+            {packIcon
+              ? <img src={packIcon.dataUrl} alt="팩" className="w-6 h-6 object-contain rounded" />
               : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="10" r="0.5" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="0.5" fill="currentColor" stroke="none"/><path d="M8.5 14.5c1 1.5 5.5 1.5 7 0"/></svg>
             }
             {naverTab === 'all' && (
