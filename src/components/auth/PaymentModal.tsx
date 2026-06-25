@@ -59,16 +59,6 @@ export function PaymentModal({ onClose }: Props) {
             <p className="text-3xl font-black text-gray-900">3,300<span className="text-xl font-bold">원</span></p>
           </div>
 
-          <div className="w-full flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5">
-            <span className="text-blue-500 text-base flex-shrink-0 mt-0.5">ℹ️</span>
-            <div>
-              <p className="text-[11px] font-bold text-blue-700">테스트 기간 안내</p>
-              <p className="text-[10.5px] text-blue-600 leading-snug mt-0.5">
-                현재 테스트 기간으로 실제 결제가 이루어지지 않습니다. 카카오페이 결제창이 열리더라도 실제 금액이 청구되지 않으니 안심하세요.
-              </p>
-            </div>
-          </div>
-
           {/* 혜택 */}
           <ul className="w-full space-y-1">
             {[
