@@ -1,18 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useActiveEmoticons } from '../store/emoticonStore'
 import { usePlatformStore } from '../store/platformStore'
+import { useAuthStore } from '../store/authStore'
 import { DropZone } from '../components/grid/DropZone'
 import { EmoticonGrid } from '../components/grid/EmoticonGrid'
 import { SetTabs } from '../components/grid/SetTabs'
 import { ShopPreview } from '../components/grid/ShopPreview'
 import { KeyboardTabView } from '../components/grid/KeyboardTabView'
 import { Modal } from '../components/shared/Modal'
+import { LoginModal } from '../components/auth/LoginModal'
+import { PaymentModal } from '../components/auth/PaymentModal'
 
 export function GridPage() {
   const { grid, accentColor, nameShort } = usePlatformStore((s) => s.getConfig())
+  const user = useAuthStore((s) => s.user)
+  const profile = useAuthStore((s) => s.profile)
   const [gridCount, setGridCount] = useState(grid.defaultCount)
   const [showShop, setShowShop] = useState(false)
   const [showKeyboard, setShowKeyboard] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
+
+  const handleShopPreview = () => {
+    if (!user) { setShowLogin(true); return }
+    if (!profile?.is_premium) { setShowPayment(true); return }
+    setShowShop(true)
+  }
   const count = useActiveEmoticons().length
 
   // Reset count when platform changes
@@ -40,7 +53,7 @@ export function GridPage() {
           )}
           {grid.showShopPreview && (
             <button
-              onClick={() => setShowShop(true)}
+              onClick={handleShopPreview}
               className="text-sm font-semibold px-4 py-2 rounded-xl transition-colors text-gray-900"
               style={{ backgroundColor: accentColor }}
             >
@@ -102,6 +115,8 @@ export function GridPage() {
           <ShopPreview />
         </Modal>
       )}
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showPayment && <PaymentModal onClose={() => setShowPayment(false)} />}
 
       {showKeyboard && (
         <Modal title="키보드 탭 아이콘 미리보기" onClose={() => setShowKeyboard(false)}>
