@@ -156,10 +156,9 @@ export function TwitchChatInput() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [hasContent, setHasContent] = useState(false)
   const editorRef = useRef<HTMLDivElement>(null)
-  const { addMessage, currentSender, toggleSender } = useChatStore()
+  const { addMessage } = useChatStore()
   const emoticons = useActiveEmoticons()
   const packName = useActiveSetName()
-  const isOther = currentSender === '상대방'
 
   const extractSegments = (): ContentSegment[] => {
     if (!editorRef.current) return []
@@ -210,7 +209,7 @@ export function TwitchChatInput() {
     const type = hasText && hasEmotes ? 'mixed' : hasEmotes ? 'emoticon' : 'text'
 
     addMessage({
-      sender: currentSender,
+      sender: '상대방',
       type,
       segments,
       text: hasText ? textSegs.map(s => s.value).join(' ') : undefined,
@@ -312,16 +311,6 @@ export function TwitchChatInput() {
       {/* 하단 바 */}
       <div className="flex items-center justify-between px-3 pb-2">
         <div className="flex items-center gap-3">
-          {/* 상대방 토글 */}
-          <button
-            onClick={toggleSender}
-            className="text-[10px] px-2.5 py-1 rounded-full font-medium border transition-colors"
-            style={isOther
-              ? { backgroundColor: TWITCH_ACCENT, color: '#fff', borderColor: TWITCH_ACCENT }
-              : { backgroundColor: 'transparent', color: TWITCH_MUTED, borderColor: TWITCH_BORDER }}
-          >
-            상대방
-          </button>
           {/* 비트 (장식) */}
           <div className="flex items-center gap-1">
             <svg width="14" height="14" viewBox="0 0 24 24" fill={TWITCH_ACCENT}>

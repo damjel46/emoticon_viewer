@@ -9,9 +9,13 @@ interface Props {
 export function ProfileModal({ onClose }: Props) {
   const user = useAuthStore((s) => s.user)
   const signOut = useAuthStore((s) => s.signOut)
+  const deleteAccount = useAuthStore((s) => s.deleteAccount)
   const displayName = useProfileStore((s) => s.displayName)
   const setDisplayName = useProfileStore((s) => s.setDisplayName)
   const [name, setName] = useState(displayName)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const handleSave = () => {
     setDisplayName(name.trim())
@@ -21,6 +25,18 @@ export function ProfileModal({ onClose }: Props) {
   const handleSignOut = async () => {
     await signOut()
     onClose()
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true)
+    setDeleteError(null)
+    const { error } = await deleteAccount()
+    if (error) {
+      setDeleteError(error)
+      setDeleting(false)
+    } else {
+      onClose()
+    }
   }
 
   return (
@@ -69,6 +85,38 @@ export function ProfileModal({ onClose }: Props) {
         >
           로그아웃
         </button>
+
+        {confirmingDelete ? (
+          <div className="mt-2 pt-3 border-t border-gray-100">
+            <p className="text-xs text-red-500 mb-2 text-center">
+              정말 탈퇴하시겠어요? 저장된 이모티콘 세트와 계정 정보가 모두 삭제되며 복구할 수 없습니다.
+            </p>
+            {deleteError && <p className="text-xs text-red-500 mb-2 text-center">{deleteError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setConfirmingDelete(false); setDeleteError(null) }}
+                disabled={deleting}
+                className="flex-1 text-xs font-medium py-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 text-xs font-semibold py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50"
+              >
+                {deleting ? '탈퇴 처리 중...' : '탈퇴하기'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmingDelete(true)}
+            className="w-full text-gray-300 hover:text-red-400 text-xs py-1.5 transition-colors"
+          >
+            탈퇴하기
+          </button>
+        )}
       </div>
     </div>
   )

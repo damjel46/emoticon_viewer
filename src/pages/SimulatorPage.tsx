@@ -220,8 +220,8 @@ const displayName = useProfileStore((s) => s.displayName)
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* 헤더 */}
-      <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between gap-4 flex-shrink-0">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+      <div className="px-6 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 flex-shrink-0">
+        <div className="flex flex-wrap items-center gap-4 min-w-0">
           <div className="flex-shrink-0">
             <h1 className="text-lg font-bold text-gray-800">채팅 시뮬레이터</h1>
             <p className="text-xs text-gray-400">
@@ -231,14 +231,14 @@ const displayName = useProfileStore((s) => s.displayName)
 
           {/* 네이버 서브모드 탭 (헤더 인라인) */}
           {activePlatform === 'ogq' && (
-            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1 flex-shrink-0">
               {(['chzzk', 'blog', 'cafe'] as const).map((mode) => {
                 const labels = { chzzk: '치지직', blog: '블로그', cafe: '카페' }
                 return (
                   <button
                     key={mode}
                     onClick={() => usePlatformStore.getState().setNaverSubMode(mode)}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
                     style={naverSubMode === mode
                       ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
                       : { color: '#6b7280' }}
@@ -252,12 +252,12 @@ const displayName = useProfileStore((s) => s.displayName)
 
           {/* 카카오 스토어 탭 */}
           {activePlatform === 'kakao' && (
-            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1 flex-shrink-0">
               {([['chat', '💬 채팅'], ['store', '🛒 이모티콘 스토어']] as const).map(([mode, label]) => (
                 <button
                   key={mode}
                   onClick={() => { setOgqOpen(mode === 'store'); setPanelOpen(false) }}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
                   style={(mode === 'store') === ogqOpen
                     ? { backgroundColor: '#fff', color: '#3c1e1e', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
                     : { color: '#6b7280' }}
@@ -270,12 +270,12 @@ const displayName = useProfileStore((s) => s.displayName)
 
           {/* SOOP OGQ 탭 */}
           {activePlatform === 'soop' && (
-            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1 flex-shrink-0">
               {([['chat', '💬 채팅'], ['ogq', '🛍️ OGQ 스토어']] as const).map(([mode, label]) => (
                 <button
                   key={mode}
                   onClick={() => { setOgqOpen(mode === 'ogq'); setPanelOpen(false) }}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
                   style={(mode === 'ogq') === ogqOpen
                     ? { backgroundColor: '#fff', color: '#0545b1', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
                     : { color: '#6b7280' }}
@@ -288,10 +288,10 @@ const displayName = useProfileStore((s) => s.displayName)
 
           {/* 네이버 스토어 탭 */}
           {activePlatform === 'ogq' && (
-            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1 flex-shrink-0">
               <button
                 onClick={() => { setOgqOpen(false); setPanelOpen(false) }}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
                 style={!ogqOpen
                   ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
                   : { color: '#6b7280' }}
@@ -300,7 +300,7 @@ const displayName = useProfileStore((s) => s.displayName)
               </button>
               <button
                 onClick={() => { setOgqOpen(true); setPanelOpen(false) }}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
                 style={ogqOpen
                   ? { backgroundColor: '#fff', color: '#03c75a', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
                   : { color: '#6b7280' }}
@@ -315,13 +315,13 @@ const displayName = useProfileStore((s) => s.displayName)
 
           <button
             onClick={() => { setPanelOpen((v) => !v); setOgqOpen(false) }}
-            className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
+            className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
           >
             {panelOpen ? '안내 닫기 ✕' : '사용 방법 ?'}
           </button>
           <button
             onClick={() => inputRef.current?.click()}
-            className="text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+            className="text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
             style={{ backgroundColor: platformConfig.accentColor, color: textOnAccent(platformConfig.accentColor) }}
           >
             이모티콘 업로드
