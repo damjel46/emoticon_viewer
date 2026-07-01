@@ -8,6 +8,7 @@ import { PLATFORMS, PLATFORM_ORDER } from '../../config/platforms'
 import { LoginModal } from '../auth/LoginModal'
 import { ProfileModal } from '../auth/ProfileModal'
 import { PaymentModal } from '../auth/PaymentModal'
+import { InquiryModal } from './InquiryModal'
 import { PlatformLogo } from './PlatformLogo'
 
 
@@ -26,6 +27,7 @@ export function Sidebar() {
   const [showLogin, setShowLogin] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
+  const [showInquiry, setShowInquiry] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'ok' | 'err'>('idle')
@@ -141,6 +143,14 @@ export function Sidebar() {
               )}
             </NavLink>
           ))}
+
+          <button
+            onClick={() => setShowInquiry(true)}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            <span className="text-base">✉️</span>
+            <span className="flex-1 text-left">문의/건의하기</span>
+          </button>
         </nav>
 
         {/* 유저 영역 */}
@@ -209,6 +219,7 @@ export function Sidebar() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
       {showPayment && <PaymentModal onClose={() => setShowPayment(false)} />}
+      {showInquiry && <InquiryModal onClose={() => setShowInquiry(false)} />}
     </>
   )
 }

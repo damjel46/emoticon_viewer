@@ -1,6 +1,5 @@
 import { useThemeStore } from '../../store/themeStore'
 import { usePlatformStore } from '../../store/platformStore'
-import { ContrastBadge } from '../shared/ContrastBadge'
 import clsx from 'clsx'
 
 export function ThemeToolbar() {
@@ -21,7 +20,6 @@ export function ThemeToolbar() {
         >
           {theme.labelKo}
         </span>
-        <ContrastBadge bgColor={theme.bgColor} />
       </div>
     )
   }
@@ -59,7 +57,6 @@ export function ThemeToolbar() {
           />
         </div>
       )}
-      <ContrastBadge bgColor={theme.bgColor} />
     </div>
   )
 }

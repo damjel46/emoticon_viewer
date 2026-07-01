@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react'
-import clsx from 'clsx'
 import { useChatStore } from '../../store/chatStore'
 import { useActiveEmoticons } from '../../store/emoticonStore'
 import { useActiveSetName } from '../../store/emoticonStore'
@@ -131,10 +130,9 @@ export function YoutubeChatInput() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [hasContent, setHasContent] = useState(false)
   const editorRef = useRef<HTMLDivElement>(null)
-  const { addMessage, currentSender, toggleSender } = useChatStore()
+  const { addMessage } = useChatStore()
   const emoticons = useActiveEmoticons()
   const packName = useActiveSetName()
-  const isOther = currentSender === '상대방'
 
   const extractSegments = (): ContentSegment[] => {
     if (!editorRef.current) return []
@@ -185,7 +183,7 @@ export function YoutubeChatInput() {
     const type = hasText && hasEmotes ? 'mixed' : hasEmotes ? 'emoticon' : 'text'
 
     addMessage({
-      sender: currentSender,
+      sender: '상대방',
       type,
       segments,
       text: hasText ? textSegs.map(s => s.value).join(' ') : undefined,
@@ -290,18 +288,7 @@ export function YoutubeChatInput() {
       </div>
 
       {/* 하단 바 */}
-      <div className="flex items-center justify-between px-3 pb-2">
-        <button
-          onClick={toggleSender}
-          className={clsx(
-            'text-[10px] px-2.5 py-1 rounded-full font-medium border transition-colors',
-            isOther
-              ? 'bg-gray-700 text-white border-gray-700'
-              : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
-          )}
-        >
-          상대방
-        </button>
+      <div className="flex items-center justify-end px-3 pb-2">
         <button
           onClick={send}
           disabled={!hasContent}

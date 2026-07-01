@@ -16,6 +16,7 @@ interface AuthState {
   init: () => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  deleteAccount: () => Promise<{ error: string | null }>
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -51,5 +52,15 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   signOut: async () => {
     await supabase.auth.signOut()
     set({ user: null, profile: null })
+  },
+
+  deleteAccount: async () => {
+    const { data, error } = await supabase.functions.invoke('delete-account')
+    if (error || data?.error) {
+      return { error: data?.error ?? error?.message ?? '탈퇴 처리에 실패했습니다.' }
+    }
+    await supabase.auth.signOut()
+    set({ user: null, profile: null })
+    return { error: null }
   },
 }))
