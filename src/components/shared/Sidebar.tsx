@@ -146,10 +146,9 @@ export function Sidebar() {
 
           <button
             onClick={() => setShowInquiry(true)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+            className="flex items-center justify-center px-3 py-2.5 rounded-xl text-[10px] font-medium text-white/50 hover:bg-white/10 hover:text-white/70 transition-colors"
           >
-            <span className="text-base">✉️</span>
-            <span className="flex-1 text-left">문의/건의하기</span>
+            <span>문의/건의하기</span>
           </button>
         </nav>
 
